@@ -16,6 +16,11 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          debug: true
+          command_timeout: 30s
           script: |
+            whoami
+            pwd
+            ls -la
             cd /var/www/kilowatt
             git pull origin main 
