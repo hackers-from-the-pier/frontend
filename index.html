@@ -1,0 +1,4245 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Честный киловатт - Система мониторинга</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+      body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background: #0f1535;
+        color: white;
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      main {
+        flex: 1;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 250px;
+        min-width: 250px;
+        max-width: 250px;
+        background: #111c44;
+        padding: 24px;
+        box-sizing: border-box;
+        flex-shrink: 0;
+      }
+
+      .logo {
+        color: #fff;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo svg {
+        width: 32px;
+        height: 32px;
+        fill: #0066ff;
+      }
+
+      .menu-section {
+        margin-bottom: 30px;
+        border-top: 1px solid #fff;
+        padding-top: 15px;
+      }
+
+      .menu-section h2 {
+        font-size: 12px;
+        color: #8f9bba;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+      }
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 15px;
+        border-radius: 12px;
+        cursor: pointer;
+        color: #8f9bba;
+        font-weight: 500;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .menu-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+
+      .menu-item.active {
+        background: #4318ff;
+        color: #fff;
+      }
+
+      /* Main content */
+      .main-content {
+        flex: 1;
+        padding: 30px;
+        background: #0b1437;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* Стили для поискового input ФИО */
+      .search-fio-container {
+        margin-bottom: 24px;
+        position: relative;
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .search-fio-input {
+        width: 100%;
+        height: 44px;
+        padding: 0 45px;
+        background: #1b2555;
+        border: 2px solid rgba(67, 24, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        font-size: 15px;
+        font-family: "Inter", sans-serif;
+        transition: all 0.3s ease;
+      }
+
+      .search-fio-input:focus {
+        outline: none;
+        border-color: #4318ff;
+        box-shadow: 0 0 0 3px rgba(67, 24, 255, 0.2);
+        background: #1f2b5f;
+      }
+
+      .search-fio-input:hover {
+        border-color: rgba(67, 24, 255, 0.3);
+        background: #1f2b5f;
+      }
+
+      .search-fio-input::placeholder {
+        color: #8f9bba;
+      }
+
+      /* Иконка поиска */
+      .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        color: #8f9bba;
+        pointer-events: none;
+      }
+
+      /* Иконка очистки */
+      .clear-search {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        color: #8f9bba;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        background: none;
+        border: none;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .search-fio-input:not(:placeholder-shown) + .clear-search {
+        opacity: 0.7;
+      }
+
+      .clear-search:hover {
+        opacity: 1;
+        color: #fff;
+      }
+
+      /* Контейнер для результатов поиска (для будущей интеграции с API) */
+      .search-results {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        width: 100%;
+        background: #1b2555;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: none;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .search-results.active {
+        display: block;
+      }
+
+      .search-result-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .search-result-item:hover {
+        background: rgba(67, 24, 255, 0.1);
+      }
+
+      .search-result-item:not(:last-child) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .upload-section {
+        background: #111c44;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+      }
+
+      .upload-section h1 {
+        font-size: 24px;
+        margin: 0 0 20px 0;
+        color: #fff;
+      }
+
+      .upload-area {
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.02);
+        margin-bottom: 20px;
+      }
+
+      .upload-area p {
+        color: #8f9bba;
+        margin-bottom: 20px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+
+      .btn {
+        background: #4318ff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .btn:hover {
+        background: #5428ff;
+      }
+
+      .btn.active {
+        background-color: #6a4dff;
+        box-shadow: 0 0 8px 2px rgba(106, 77, 255, 0.7);
+      }
+
+      .btn.secondary {
+        background: transparent;
+        border: 1px solid #4318ff;
+      }
+
+      /* Stats section */
+      .stats-section {
+        background: #111c44;
+        border-radius: 20px;
+        padding: 30px;
+        position: relative;
+      }
+
+      .stats-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 30px;
+      }
+
+      .progress-circle {
+        width: 200px;
+        height: 200px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .progress-circle::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: conic-gradient(#4318ff 0% 68%, #1b2555 68% 100%);
+      }
+
+      .progress-circle::after {
+        content: "";
+        position: absolute;
+        width: calc(100% - 30px);
+        height: calc(100% - 30px);
+        border-radius: 50%;
+        background: #111c44;
+      }
+
+      .progress-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+      }
+
+      .progress-value {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .time-labels {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+      }
+
+      .time-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .time-value {
+        color: #fff;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .time-label {
+        color: #4a5568;
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+      }
+
+      .stat-card {
+        background: #1b2555;
+        border-radius: 16px;
+        padding: 20px;
+      }
+
+      .stat-card h3 {
+        color: #8f9bba;
+        font-size: 14px;
+        margin: 0 0 10px 0;
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .anomaly-btn {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        background: #4318ff;
+        color: white;
+        border: none;
+        padding: 15px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(67, 24, 255, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .anomaly-btn:before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        width: 150%;
+        height: 150%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transition: transform 0.6s ease;
+        z-index: -1;
+      }
+
+      .anomaly-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(67, 24, 255, 0.4);
+      }
+
+      .anomaly-btn:hover:before {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .anomaly-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 8px rgba(67, 24, 255, 0.3);
+      }
+
+      /* Add styles for authors table */
+      .authors-section {
+        background: #111c44;
+        border-radius: 20px;
+        padding: 30px;
+        height: calc(100vh - 60px);
+        overflow-x: hidden;
+        max-width: 100%;
+      }
+
+      .authors-section::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      .authors-section::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        margin: 5px;
+      }
+
+      .authors-section::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #4318ff, #9f7aea);
+        border-radius: 10px;
+        border: 2px solid #111c44;
+        transition: all 0.3s ease;
+      }
+
+      .authors-section::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #5428ff, #b794f4);
+      }
+
+      .authors-section::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+
+      /* Стилизация для Firefox */
+      .authors-section {
+        scrollbar-width: thin;
+        scrollbar-color: #4318ff #111c44;
+      }
+
+      /* Добавляем плавность скролла */
+      .authors-section {
+        scroll-behavior: smooth;
+      }
+
+      .authors-header {
+        margin-bottom: 30px;
+        top: 0;
+        background: #111c44;
+        padding-top: 10px;
+      }
+
+      .authors-header h1 {
+        font-size: 24px;
+        margin: 0;
+        color: #fff;
+      }
+
+      /* Стили для таблицы */
+      .authors-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: thin;
+        scrollbar-color: #4318ff rgba(255, 255, 255, 0.1);
+        margin: 0 -30px;
+        padding: 0 30px;
+        max-width: calc(
+          100vw - 310px
+        ); /* 250px sidebar + 30px padding on each side */
+      }
+
+      .authors-table .grid-header,
+      .authors-table .grid-row {
+        display: grid;
+        grid-template-columns:
+          100px /* ID клиента */
+          200px /* ФИО */
+          180px /* Контакты */
+          300px /* Адрес объекта */
+          150px /* Тип клиента */
+          150px /* Тип строения */
+          120px /* Кол-во комнат */
+          130px /* Кол-во жильцов */
+          120px /* Площадь */
+          140px /* Сумма за год */
+          140px /* Среднее в месяц */
+          140px /* Макс. за месяц */
+          140px /* Мин. за месяц */
+          150px /* Индекс сезонности */
+          120px /* На 1 м² */
+          140px /* На 1 человека */
+          130px /* Статус */
+          140px /* Вероятность */
+          120px /* Яндекс карта */
+          120px /* 2ГИС */
+          120px /* Авито */
+          100px; /* Действия */
+        min-width: max-content;
+        margin: 0 -30px;
+        padding: 0 30px;
+      }
+
+      .authors-table .grid-header > div,
+      .authors-table .grid-row > div {
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .authors-table .grid-header {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #1a2754;
+        margin: 0 -30px;
+        padding: 0 30px;
+      }
+
+      .grid-header div {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .authors-table .grid-header > div {
+        font-weight: 600;
+        color: #8f9bba;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        white-space: normal;
+        line-height: 1.2;
+        min-height: 40px;
+        justify-content: center;
+        text-align: center;
+      }
+
+      /* Стили для заголовка ФИО */
+      .authors-table .grid-header > div:nth-child(2) {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        padding: 12px 11px;
+        color: #fff;
+      }
+
+      .authors-table .grid-header > div:nth-child(2):hover {
+        animation: pulseGlow 0.8s ease-in-out;
+      }
+
+      .authors-table .grid-header > div:nth-child(2):hover::before {
+        opacity: 1;
+      }
+
+      @keyframes pulseGlow {
+        0% {
+          box-shadow: 0 0 0 0 rgba(67, 24, 255, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(67, 24, 255, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(67, 24, 255, 0);
+        }
+      }
+
+      .authors-table .grid-header > div:nth-child(2):active {
+        transform: scale(0.98);
+        animation: pulseGlow 0.8s ease-in-out;
+      }
+
+      .authors-table .grid-header .status-header,
+      .authors-table .grid-header .probability-header {
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s ease;
+        background: rgb(76 35 255 / 74%);
+        border-radius: 8px;
+        padding: 8px;
+      }
+
+      .authors-table .grid-header .status-header:hover,
+      .authors-table .grid-header .probability-header:hover {
+        color: #fff;
+        background: rgba(67, 24, 255, 0.2);
+      }
+
+      /* ID клиента - по центру */
+      .authors-table .grid-row > div:nth-child(1) {
+        justify-content: center;
+        text-align: center;
+      }
+
+      /* ФИО, Контакты, Адрес, Тип клиента, Тип строения - по левому краю */
+      .authors-table .grid-row > div:nth-child(-n + 6) {
+        justify-content: flex-start;
+        text-align: left;
+      }
+
+      /* Числовые значения - по правому краю */
+      .authors-table .grid-row > div:nth-child(n + 7):nth-child(-n + 16) {
+        justify-content: center;
+        text-align: right;
+      }
+
+      /* Статус - по центру */
+      .authors-table .grid-row > div:nth-child(17) {
+        justify-content: center;
+        text-align: center;
+      }
+
+      /* Стили для адреса */
+      .authors-table .grid-row > div:nth-child(4) {
+        white-space: normal;
+        line-height: 1.4;
+        font-size: 14px;
+        word-break: break-word;
+        min-height: 60px;
+      }
+
+      /* Стили для контактов */
+      .authors-table .grid-row > div:nth-child(3) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        font-size: 14px;
+        white-space: normal;
+        min-height: 60px;
+      }
+
+      /* Добавляем разделители между строками */
+      .authors-table .grid-row {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      /* Убираем последний разделитель */
+      .authors-table .grid-row:last-child {
+        border-bottom: none;
+      }
+
+      /* Статусы */
+      .status-indicator {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .status-normal {
+        background: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+      }
+
+      .status-warning {
+        background: rgba(255, 199, 0, 0.15);
+        color: #ffc700;
+      }
+
+      .status-danger {
+        background: rgba(255, 71, 87, 0.15);
+        color: #ff4757;
+      }
+
+      /* Modal Styles */
+      .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #111c44;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        width: 400px;
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+      }
+
+      .modal.show {
+        display: block;
+      }
+
+      .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-title {
+        color: #fff;
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        color: #8f9bba;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        transition: all 0.2s ease;
+      }
+
+      .modal-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+
+      .modal-body {
+        padding: 24px;
+      }
+
+      .status-option {
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        border: 2px solid transparent;
+      }
+
+      .status-option:last-child {
+        margin-bottom: 0;
+      }
+
+      .status-option:hover {
+        background: rgba(67, 24, 255, 0.1);
+        border-color: rgba(67, 24, 255, 0.3);
+      }
+
+      .status-option.selected {
+        background: rgba(67, 24, 255, 0.2);
+        border-color: #4318ff;
+      }
+
+      .status-option .color-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+      }
+
+      .status-option-text {
+        flex: 1;
+        color: #fff;
+        font-weight: 500;
+      }
+
+      .modal-footer {
+        padding: 20px 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+
+      .modal-btn {
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .modal-btn.cancel {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: none;
+      }
+
+      .modal-btn.cancel:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .modal-btn.apply {
+        background: #4318ff;
+        color: #fff;
+        border: none;
+      }
+
+      .modal-btn.apply:hover {
+        background: #5428ff;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(6px);
+        z-index: 999;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .modal-overlay.show {
+        display: block;
+        opacity: 1;
+      }
+
+      .color-dot.all {
+        background: linear-gradient(
+          45deg,
+          #2ed573 0%,
+          #2ed573 33%,
+          #ffc700 33%,
+          #ffc700 66%,
+          #ff4757 66%,
+          #ff4757 100%
+        );
+      }
+
+      /* Popup Menu Styles */
+      .status-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(180deg, #1a2754 0%, #111c44 100%);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        padding: 24px;
+        min-width: 280px;
+        z-index: 1000;
+        display: none;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .status-popup.show {
+        display: block;
+        animation: popupFadeIn 0.3s ease;
+      }
+
+      @keyframes popupFadeIn {
+        from {
+          opacity: 0;
+          transform: translate(-50%, -48%);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      .status-popup-title {
+        color: #fff;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+        letter-spacing: 0.5px;
+      }
+
+      .status-popup-item {
+        padding: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: all 0.2s ease;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid transparent;
+      }
+
+      .status-popup-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .status-popup-item:hover {
+        background: rgba(67, 24, 255, 0.1);
+        border-color: rgba(67, 24, 255, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .status-popup-item:active {
+        transform: translateY(0);
+        box-shadow: none;
+      }
+
+      .status-popup-item .color-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        position: relative;
+      }
+
+      .status-popup-item .color-dot::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 50%;
+        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2);
+      }
+
+      .color-dot.green {
+        background: linear-gradient(135deg, #2ed573, #7bed9f);
+      }
+
+      .color-dot.yellow {
+        background: linear-gradient(135deg, #ffc700, #ffdd59);
+      }
+
+      .color-dot.red {
+        background: linear-gradient(135deg, #ff4757, #ff6b81);
+      }
+
+      .color-dot.all {
+        background: conic-gradient(
+          from 0deg,
+          #2ed573 0deg 120deg,
+          #ffc700 120deg 240deg,
+          #ff4757 240deg 360deg
+        );
+      }
+
+      /* Overlay styles */
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        z-index: 999;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .popup-overlay.show {
+        display: block;
+        opacity: 1;
+      }
+
+      .probability-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(180deg, #1a2754 0%, #111c44 100%);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        padding: 24px;
+        min-width: 280px;
+        z-index: 1000;
+        display: none;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .probability-popup.show {
+        display: block;
+        animation: popupFadeIn 0.3s ease;
+      }
+
+      .probability-value {
+        font-weight: 500;
+        text-align: center !important;
+        justify-content: center !important;
+        padding: 12px 16px !important;
+      }
+
+      /* Add styles for the new color dots */
+      .color-dot.range1 {
+        background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%);
+      }
+
+      .color-dot.range2 {
+        background: linear-gradient(135deg, #7bed9f 0%, #ffdd59 100%);
+      }
+
+      .color-dot.range3 {
+        background: linear-gradient(135deg, #ffdd59 0%, #ffa502 100%);
+      }
+
+      .color-dot.range4 {
+        background: linear-gradient(135deg, #ffa502 0%, #ff6b81 100%);
+      }
+
+      .color-dot.range5 {
+        background: linear-gradient(135deg, #ff6b81 0%, #ff4757 100%);
+      }
+
+      .color-dot.all {
+        background: conic-gradient(
+          from 0deg,
+          #2ed573 0deg 72deg,
+          #7bed9f 72deg 144deg,
+          #ffdd59 144deg 216deg,
+          #ffa502 216deg 288deg,
+          #ff4757 288deg 360deg
+        );
+      }
+
+      /* Ensure probability header is centered */
+      .authors-table .grid-header .probability-header {
+        text-align: center !important;
+        justify-content: center !important;
+      }
+
+      .authors-table .grid-row > div:nth-child(n + 19):nth-child(-n + 21) {
+        justify-content: center;
+        text-align: center;
+      }
+
+      .authors-table .grid-row > div a {
+        color: #4318ff;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        background: rgba(67, 24, 255, 0.1);
+        transition: all 0.2s ease;
+      }
+
+      .authors-table .grid-row > div a:hover {
+        background: rgba(67, 24, 255, 0.2);
+        color: #fff;
+      }
+
+      /* Стили для чекбоксов */
+      .custom-checkbox {
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .custom-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+
+      .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background: rgba(67, 24, 255, 0.1);
+        border: 2px solid rgba(67, 24, 255, 0.5);
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .custom-checkbox:hover .checkmark {
+        background: rgba(67, 24, 255, 0.2);
+      }
+
+      .custom-checkbox input:checked ~ .checkmark {
+        background-color: #4318ff;
+        border-color: #4318ff;
+      }
+
+      .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 6px;
+        top: 2px;
+        width: 4px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+
+      .custom-checkbox input:checked ~ .checkmark:after {
+        display: block;
+      }
+
+      /* Стили для заголовка колонки действий */
+      .actions-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .select-all-checkbox {
+        margin-left: 4px;
+      }
+
+      /* Pagination styles */
+      .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        background: #111c44;
+        border-radius: 0 0 20px 20px;
+        margin-top: 2px;
+      }
+
+      .pagination-info {
+        color: #8f9bba;
+        font-size: 14px;
+      }
+
+      .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .pagination-button {
+        background: rgba(67, 24, 255, 0.1);
+        border: 1px solid rgba(67, 24, 255, 0.2);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .pagination-button:hover {
+        background: rgba(67, 24, 255, 0.2);
+        border-color: rgba(67, 24, 255, 0.3);
+      }
+
+      .pagination-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .pagination-button.active {
+        background: #4318ff;
+        border-color: #4318ff;
+      }
+
+      .pagination-numbers {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .page-number {
+        min-width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        color: #8f9bba;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+      }
+
+      .page-number:hover {
+        background: rgba(67, 24, 255, 0.1);
+        color: #fff;
+      }
+
+      .page-number.active {
+        background: #4318ff;
+        color: #fff;
+      }
+
+      .page-ellipsis {
+        color: #8f9bba;
+        padding: 0 4px;
+      }
+
+      /* Добавляем стили для выбора количества элементов на странице */
+      .items-per-page {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #8f9bba;
+      }
+
+      .items-per-page select {
+        background: rgba(67, 24, 255, 0.1);
+        border: 1px solid rgba(67, 24, 255, 0.2);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        appearance: none;
+        padding-right: 32px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 16px;
+      }
+
+      .items-per-page select:hover {
+        background-color: rgba(67, 24, 255, 0.2);
+        border-color: rgba(67, 24, 255, 0.3);
+      }
+
+      .items-per-page select:focus {
+        outline: none;
+        border-color: #4318ff;
+      }
+
+      .items-per-page select option {
+        background: #111c44;
+        color: #fff;
+      }
+
+      /* Control button styles */
+      .control-btn {
+        background: rgba(67, 24, 255, 0.1);
+        color: rgba(255, 255, 255, 0.5);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        /* cursor: not-allowed; */
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        margin-left: 20px;
+        /* opacity: 0.5; */
+        /* pointer-events: none; */
+      }
+
+      .control-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+      }
+
+      .control-btn.active {
+        background: #4318ff;
+        color: white;
+        cursor: pointer;
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .control-btn.active:hover {
+        background: #5428ff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(67, 24, 255, 0.2);
+      }
+
+      .control-btn.active:active {
+        transform: translateY(0);
+      }
+
+      .control-section {
+        background: #111c44;
+        border-radius: 20px;
+        padding: 30px;
+        height: calc(100vh - 60px);
+        overflow: auto;
+      }
+
+      .control-header {
+        margin-bottom: 30px;
+      }
+
+      .control-header h1 {
+        font-size: 24px;
+        margin: 0;
+        color: #fff;
+      }
+
+      .control-body {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        padding: 24px;
+      }
+
+      .selected-clients h2 {
+        font-size: 18px;
+        color: #8f9bba;
+        margin-bottom: 20px;
+      }
+
+      .selected-clients-list {
+        display: grid;
+        gap: 16px;
+      }
+
+      .footer__main {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 20px;
+        background: #111c44;
+        border-radius: 0 0 20px 20px;
+      }
+
+      /* Control Button Styles */
+      .control-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #4318ff 0%, #5428ff 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .control-action-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: 0.5s;
+      }
+
+      .control-action-btn:hover::before {
+        left: 100%;
+      }
+
+      .control-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(67, 24, 255, 0.2);
+        background: linear-gradient(135deg, #5428ff 0%, #6a4dff 100%);
+      }
+
+      .control-action-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 4px 8px rgba(67, 24, 255, 0.1);
+      }
+
+      .control-action-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+      }
+
+      .control-action-btn[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: linear-gradient(135deg, #2a2f4c 0%, #353e6c 100%);
+      }
+
+      .control-action-btn[disabled]:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Styles for the control section */
+      .control-section {
+        background: #111c44;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 20px;
+      }
+
+      .control-header {
+        margin-bottom: 30px;
+      }
+
+      .control-header h1 {
+        font-size: 24px;
+        margin: 0;
+        color: #fff;
+      }
+
+      .control-body {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        padding: 24px;
+      }
+
+      .selected-clients {
+        background: rgba(67, 24, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        margin-top: 24px;
+      }
+
+      .selected-clients h2 {
+        font-size: 18px;
+        color: #8f9bba;
+        margin-bottom: 20px;
+      }
+
+      .selected-clients-list {
+        display: grid;
+        gap: 16px;
+      }
+
+      .selected-client-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid rgba(67, 24, 255, 0.2);
+      }
+
+      .selected-client-item .client-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: #fff;
+      }
+
+      .selected-client-item .client-info strong {
+        color: #4318ff;
+      }
+
+      .selected-client-item .client-status {
+        display: flex;
+        gap: 16px;
+        color: #8f9bba;
+        font-size: 14px;
+      }
+
+      /* Control Button Styles */
+      #controlActionBtn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #4318ff 0%, #5428ff 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      #controlActionBtn:hover {
+        background: linear-gradient(135deg, #5428ff 0%, #6a4dff 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(67, 24, 255, 0.2);
+      }
+
+      #controlActionBtn:active {
+        transform: translateY(1px);
+      }
+
+      #controlActionBtn[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: linear-gradient(135deg, #2a2f4c 0%, #353e6c 100%);
+      }
+
+      #controlActionBtn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+      }
+
+      /* Probability Header Styles */
+      .probability-header {
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s ease;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(67, 24, 255, 0.1);
+      }
+
+      .probability-header:hover {
+        background: rgba(67, 24, 255, 0.2);
+        color: #fff;
+      }
+
+      .probability-header.range1 {
+        background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%);
+      }
+      .probability-header.range2 {
+        background: linear-gradient(135deg, #7bed9f 0%, #ffdd59 100%);
+      }
+      .probability-header.range3 {
+        background: linear-gradient(135deg, #ffdd59 0%, #ffa502 100%);
+      }
+      .probability-header.range4 {
+        background: linear-gradient(135deg, #ffa502 0%, #ff6b81 100%);
+      }
+      .probability-header.range5 {
+        background: linear-gradient(135deg, #ff6b81 0%, #ff4757 100%);
+      }
+
+      .probability-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(180deg, #1a2754 0%, #111c44 100%);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        padding: 24px;
+        min-width: 280px;
+        z-index: 1000;
+        display: none;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .probability-popup.show {
+        display: block;
+        animation: popupFadeIn 0.3s ease;
+      }
+
+      .probability-popup .status-popup-item {
+        padding: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: all 0.2s ease;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid transparent;
+      }
+
+      .probability-popup .status-popup-item:hover {
+        background: rgba(67, 24, 255, 0.1);
+        border-color: rgba(67, 24, 255, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .probability-popup .status-popup-item:active {
+        transform: translateY(0);
+        box-shadow: none;
+      }
+
+      .probability-popup .color-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .probability-popup .color-dot.range1 {
+        background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%);
+      }
+      .probability-popup .color-dot.range2 {
+        background: linear-gradient(135deg, #7bed9f 0%, #ffdd59 100%);
+      }
+      .probability-popup .color-dot.range3 {
+        background: linear-gradient(135deg, #ffdd59 0%, #ffa502 100%);
+      }
+      .probability-popup .color-dot.range4 {
+        background: linear-gradient(135deg, #ffa502 0%, #ff6b81 100%);
+      }
+      .probability-popup .color-dot.range5 {
+        background: linear-gradient(135deg, #ff6b81 0%, #ff4757 100%);
+      }
+
+      .probability-popup .color-dot.all {
+        background: conic-gradient(
+          from 0deg,
+          #2ed573 0deg 72deg,
+          #7bed9f 72deg 144deg,
+          #ffdd59 144deg 216deg,
+          #ffa502 216deg 288deg,
+          #ff4757 288deg 360deg
+        );
+      }
+
+      /* Popup Overlay */
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        z-index: 999;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .popup-overlay.show {
+        display: block;
+        opacity: 1;
+      }
+
+      @keyframes popupFadeIn {
+        from {
+          opacity: 0;
+          transform: translate(-50%, -48%);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      /* Status Header and Indicator Styles */
+      .status-header {
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s ease;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(67, 24, 255, 0.1);
+      }
+
+      .status-header:hover {
+        background: rgba(67, 24, 255, 0.2);
+        color: #fff;
+      }
+
+      .status-header.status-normal {
+        background: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+      }
+
+      .status-header.status-warning {
+        background: rgba(255, 199, 0, 0.15);
+        color: #ffc700;
+      }
+
+      .status-header.status-danger {
+        background: rgba(255, 71, 87, 0.15);
+        color: #ff4757;
+      }
+
+      .status-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(180deg, #1a2754 0%, #111c44 100%);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        padding: 24px;
+        min-width: 280px;
+        z-index: 1000;
+        display: none;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .status-popup.show {
+        display: block;
+        animation: popupFadeIn 0.3s ease;
+      }
+
+      .status-popup-item {
+        padding: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: all 0.2s ease;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid transparent;
+      }
+
+      .status-popup-item:hover {
+        background: rgba(67, 24, 255, 0.1);
+        border-color: rgba(67, 24, 255, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .status-popup-item:active {
+        transform: translateY(0);
+        box-shadow: none;
+      }
+
+      .status-popup .color-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .status-popup .color-dot.normal {
+        background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%);
+      }
+
+      .status-popup .color-dot.warning {
+        background: linear-gradient(135deg, #ffc700 0%, #ffdd59 100%);
+      }
+
+      .status-popup .color-dot.danger {
+        background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+      }
+
+      .status-popup .color-dot.all {
+        background: conic-gradient(
+          from 0deg,
+          #2ed573 0deg 120deg,
+          #ffc700 120deg 240deg,
+          #ff4757 240deg 360deg
+        );
+      }
+
+      /* Search styles */
+      .search-container {
+        margin-bottom: 20px;
+        position: relative;
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 12px 20px;
+        padding-left: 45px;
+        background: #1b2555;
+        border: 2px solid rgba(67, 24, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        font-family: "Inter", sans-serif;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #4318ff;
+        box-shadow: 0 0 0 3px rgba(67, 24, 255, 0.2);
+      }
+
+      .search-input::placeholder {
+        color: #8f9bba;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8f9bba;
+        pointer-events: none;
+      }
+
+      .search-container:hover .search-input {
+        border-color: rgba(67, 24, 255, 0.3);
+      }
+
+      /* Add this right after your existing .main-content styles */
+      .main-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+      }
+
+      /* Стилизованный input для ФИО */
+      .fio-input-container {
+        position: relative;
+        width: 100%;
+      }
+
+      .fio-input {
+        width: 100%;
+        padding: 8px 12px;
+        background: #1b2555;
+        border: 2px solid rgba(67, 24, 255, 0.1);
+        border-radius: 8px;
+        color: white;
+        font-size: 14px;
+        font-family: "Inter", sans-serif;
+        transition: all 0.3s ease;
+      }
+
+      .fio-input:focus {
+        outline: none;
+        border-color: #4318ff;
+        box-shadow: 0 0 0 3px rgba(67, 24, 255, 0.2);
+        background: #1f2b5f;
+      }
+
+      .fio-input:hover {
+        border-color: rgba(67, 24, 255, 0.3);
+        background: #1f2b5f;
+      }
+
+      .fio-input::placeholder {
+        color: #8f9bba;
+        opacity: 0.7;
+      }
+
+      /* Анимация для label */
+      .fio-label {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: #8f9bba;
+        pointer-events: none;
+        transition: all 0.3s ease;
+      }
+
+      .fio-input:focus + .fio-label,
+      .fio-input:not(:placeholder-shown) + .fio-label {
+        top: -20px;
+        left: 0;
+        font-size: 12px;
+        color: #4318ff;
+        font-weight: 500;
+      }
+
+      /* Добавляем иконку редактирования */
+      .fio-input-container::after {
+        content: "✎";
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8f9bba;
+        font-size: 14px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .fio-input-container:hover::after {
+        opacity: 0.7;
+      }
+
+      /* Анимация при вводе */
+      @keyframes inputPulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(67, 24, 255, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 5px rgba(67, 24, 255, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(67, 24, 255, 0);
+        }
+      }
+
+      .fio-input:focus {
+        animation: inputPulse 1s ease-in-out;
+      }
+
+      /* Модификация ячейки с ФИО для размещения input */
+      .authors-table .grid-row > div:nth-child(2) {
+        padding: 8px 12px;
+      }
+
+      /* Стили для поиска в grid-header */
+      .search-field-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        box-sizing: border-box;
+        background: #1a2754;
+      }
+
+      .search-field {
+        width: 100%;
+        height: 32px;
+        padding: 0 32px;
+        background: #1b2555;
+        border: 1px solid rgba(67, 24, 255, 0.2);
+        border-radius: 6px;
+        color: white;
+        font-size: 13px;
+        font-family: "Inter", sans-serif;
+        transition: all 0.2s ease;
+      }
+
+      .search-field:focus {
+        outline: none;
+        border-color: #4318ff;
+        background: #1f2b5f;
+        box-shadow: 0 0 0 2px rgba(67, 24, 255, 0.15);
+      }
+
+      .search-field:hover {
+        border-color: rgba(67, 24, 255, 0.3);
+        background: #1f2b5f;
+      }
+
+      .search-field::placeholder {
+        color: #8f9bba;
+        font-size: 13px;
+      }
+
+      /* Иконка поиска слева */
+      .search-field-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 14px;
+        height: 14px;
+        color: #8f9bba;
+        pointer-events: none;
+        transition: color 0.2s ease;
+      }
+
+      .search-field:focus ~ .search-field-icon {
+        color: #4318ff;
+      }
+
+      /* Кнопка очистки */
+      .search-field-clear {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 14px;
+        height: 14px;
+        color: #8f9bba;
+        opacity: 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: none;
+        border: none;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .search-field:not(:placeholder-shown) ~ .search-field-clear {
+        opacity: 0.7;
+      }
+
+      .search-field-clear:hover {
+        opacity: 1;
+        color: #fff;
+      }
+
+      /* Убираем стандартную кнопку очистки в поле поиска */
+      .search-field::-webkit-search-cancel-button {
+        display: none;
+      }
+
+      /* Убираем фон автозаполнения в Chrome */
+      .search-field:-webkit-autofill,
+      .search-field:-webkit-autofill:hover,
+      .search-field:-webkit-autofill:focus {
+        -webkit-text-fill-color: white;
+        -webkit-box-shadow: 0 0 0px 1000px #1b2555 inset;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+
+      /* Стили для контейнера результатов поиска */
+      .search-results-container {
+        position: absolute;
+        top: 100%;
+        left: 8px;
+        right: 8px;
+        background: #1b2555;
+        border: 1px solid rgba(67, 24, 255, 0.2);
+        border-radius: 6px;
+        margin-top: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+      }
+
+      .search-results-container.active {
+        display: block;
+      }
+
+      .search-result-item {
+        padding: 8px 12px;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .search-result-item:hover {
+        background: rgba(67, 24, 255, 0.1);
+      }
+
+      .search-result-item:not(:last-child) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      /* Стили для ячеек с ФИО */
+      .fio-cell {
+        font-size: 14px;
+        color: #fff;
+        padding: 8px 12px;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <svg
+          class="logo-icon"
+          version="1.0"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 90 134"
+        >
+          <g
+            transform="translate(0.000000,134.000000) scale(0.100000,-0.100000)"
+            fill="#FFFFFF"
+            stroke="none"
+          >
+            <path
+              d="M323 1236 c-153 -50 -261 -188 -271 -347 -6 -98 14 -168 75 -256 54
+-79 73 -121 73 -161 0 -16 9 -41 21 -56 l20 -26 200 0 c186 0 200 1 219 20 12
+12 20 34 20 53 0 40 25 93 83 179 135 199 63 470 -153 572 -55 26 -79 31 -155
+33 -57 2 -106 -2 -132 -11z m219 -67 c132 -33 241 -196 224 -337 -8 -67 -30
+-119 -85 -200 -39 -57 -48 -78 -65 -154 l-6 -28 -169 0 -169 0 -7 41 c-10 59
+-27 94 -79 167 -53 76 -70 138 -64 236 14 207 200 330 420 275z"
+            />
+            <path
+              d="M388 963 c-64 -75 -114 -143 -111 -150 3 -9 24 -13 63 -13 l58 0 -29
+-97 c-32 -107 -33 -113 -19 -113 15 0 251 281 244 291 -3 5 -30 9 -60 9 -30 0
+-54 1 -54 3 0 1 11 44 25 95 14 51 25 98 25 103 0 29 -39 -6 -142 -128z"
+            />
+            <path
+              d="M247 341 c-20 -6 -26 -24 -16 -43 9 -16 27 -18 204 -18 106 0 200 3
+209 6 20 8 21 43 2 50 -16 6 -380 11 -399 5z"
+            />
+            <path
+              d="M276 224 c-19 -18 -5 -54 20 -54 8 0 25 -11 37 -26 40 -46 186 -43
+220 6 7 9 21 19 31 21 10 2 24 12 30 22 9 15 7 21 -8 33 -30 21 -308 20 -330
+-2z"
+            />
+          </g>
+        </svg>
+        <span class="logo-text">Честный киловатт</span>
+      </div>
+      <nav class="menu-section">
+        <div class="menu-item active">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path
+              d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"
+            />
+          </svg>
+          Загрузка Базы
+        </div>
+        <div class="menu-item">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path
+              d="M3 3h18v2H3V3zm0 4h18v2H3V7zm0 4h18v2H3v-2zm0 4h18v2H3v-2zm0 4h18v2H3v-2z"
+            />
+          </svg>
+          База клентов
+        </div>
+        <div class="menu-item">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path
+              d="M12 1L3 5v6c0 5.25 3.75 9.75 9 11 5.25-1.25 9-5.75 9-11V5l-9-4z"
+            />
+          </svg>
+          На контроле
+        </div>
+
+        <div class="menu-item" id="control-menu-item" style="cursor: pointer">
+          <svg
+            version="1.1"
+            id="Capa_1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            x="0px"
+            y="0px"
+            width="25px"
+            viewBox="0 0 60 60"
+            fill="currentcolor"
+            style="enable-background: new 0 0 60 60"
+            xml:space="preserve"
+          >
+            <g>
+              <path
+                d="M35.493,24h2c0.553,0,1-0.447,1-1s-0.447-1-1-1h-2c-0.553,0-1,0.447-1,1S34.94,24,35.493,24z"
+              />
+              <path
+                d="M31.995,31c-0.433-0.001-0.854-0.078-1.252-0.23c-0.512-0.195-1.093,0.062-1.291,0.578
+         c-0.196,0.516,0.063,1.094,0.578,1.291c0.626,0.238,1.285,0.36,1.963,0.361h0.357c0.553,0,1-0.447,1-1s-0.447-1-1-1H31.995z"
+              />
+              <path
+                d="M29.621,24.676c0.181,0,0.363-0.049,0.528-0.151c0.443-0.276,0.933-0.445,1.454-0.503c0.549-0.061,0.945-0.555,0.885-1.104
+         s-0.551-0.941-1.104-0.885c-0.822,0.091-1.594,0.357-2.294,0.794c-0.469,0.292-0.611,0.909-0.319,1.378
+         C28.961,24.509,29.287,24.676,29.621,24.676z"
+              />
+              <path
+                d="M35.993,40c-0.086,0-0.171,0.002-0.256,0.006c-0.552,0.022-0.98,0.488-0.958,1.04c0.021,0.538,0.465,0.959,0.998,0.959
+         c0.014,0,0.028,0,0.042-0.001L37.778,42c0.553,0,1-0.447,1-1s-0.447-1-1-1H35.993z"
+              />
+              <path
+                d="M43.493,24c0.553,0,1-0.447,1-1s-0.447-1-1-1h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1H43.493z"
+              />
+              <path
+                d="M47.778,40c-0.553,0-1,0.447-1,1s0.447,1,1,1h2c0.553,0,1-0.447,1-1s-0.447-1-1-1H47.778z"
+              />
+              <path
+                d="M51.351,32c0-0.553-0.447-1-1-1h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1h2C50.903,33,51.351,32.553,51.351,32z"
+              />
+              <path
+                d="M41.778,42h2c0.553,0,1-0.447,1-1s-0.447-1-1-1h-2c-0.553,0-1,0.447-1,1S41.226,42,41.778,42z"
+              />
+              <path
+                d="M45.351,32c0-0.553-0.447-1-1-1h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1h2C44.903,33,45.351,32.553,45.351,32z"
+              />
+              <path
+                d="M36.351,31c-0.553,0-1,0.447-1,1s0.447,1,1,1h2c0.553,0,1-0.447,1-1s-0.447-1-1-1H36.351z"
+              />
+              <path
+                d="M24.064,58h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1h2c0.553,0,1-0.447,1-1S24.616,58,24.064,58z"
+              />
+              <path
+                d="M18.064,58h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1h2c0.553,0,1-0.447,1-1S18.616,58,18.064,58z"
+              />
+              <path
+                d="M52.604,54.517c-0.539-0.121-1.074,0.217-1.195,0.756c-0.115,0.51-0.338,0.979-0.663,1.392
+         c-0.341,0.434-0.267,1.063,0.168,1.404c0.184,0.144,0.401,0.214,0.617,0.214c0.297,0,0.59-0.131,0.787-0.382
+         c0.504-0.64,0.864-1.396,1.042-2.188C53.481,55.173,53.143,54.638,52.604,54.517z"
+              />
+              <path
+                d="M51.531,52.719c0.216,0,0.435-0.07,0.617-0.214c0.435-0.342,0.509-0.971,0.168-1.404c-0.503-0.639-1.152-1.167-1.879-1.528
+         c-0.497-0.247-1.095-0.044-1.341,0.45c-0.246,0.495-0.044,1.095,0.45,1.341c0.463,0.229,0.877,0.566,1.197,0.974
+         C50.941,52.588,51.234,52.719,51.531,52.719z"
+              />
+              <path
+                d="M47.065,50c0-0.553-0.447-1-1-1h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1h2C46.617,51,47.065,50.553,47.065,50z"
+              />
+              <path
+                d="M47.993,58h-1.93c-0.553,0-1,0.447-1,1s0.447,1,1,1l1.971-0.001l0.029-1v1c0.553,0,0.965-0.447,0.965-1
+         C49.028,58.447,48.546,58,47.993,58z"
+              />
+              <path
+                d="M59.426,35.632c-0.088-0.546-0.603-0.919-1.146-0.829c-0.546,0.087-0.917,0.601-0.829,1.146
+         c0.028,0.178,0.044,0.359,0.042,0.552c0,0.336-0.048,0.668-0.142,0.988c-0.155,0.53,0.148,1.086,0.679,1.241
+         c0.094,0.027,0.188,0.04,0.281,0.04c0.433,0,0.832-0.282,0.96-0.719c0.147-0.503,0.222-1.024,0.222-1.543
+         C59.495,36.22,59.473,35.925,59.426,35.632z"
+              />
+              <path
+                d="M28.029,29.855c0.524-0.173,0.81-0.738,0.638-1.263c-0.115-0.351-0.174-0.718-0.174-1.088
+         c0.001-0.151,0.01-0.302,0.028-0.449c0.069-0.548-0.319-1.049-0.867-1.117c-0.565-0.063-1.049,0.321-1.117,0.867
+         c-0.028,0.226-0.043,0.456-0.044,0.694c0,0.588,0.092,1.166,0.273,1.718c0.139,0.421,0.53,0.688,0.95,0.688
+         C27.82,29.905,27.926,29.89,28.029,29.855z"
+              />
+              <path
+                d="M56.746,31.738c-0.714-0.414-1.494-0.657-2.317-0.722c-0.549-0.04-1.032,0.367-1.075,0.919
+         c-0.043,0.551,0.368,1.032,0.919,1.075c0.522,0.041,1.017,0.195,1.47,0.458c0.158,0.092,0.331,0.135,0.501,0.135
+         c0.345,0,0.681-0.179,0.866-0.498C57.387,32.628,57.224,32.016,56.746,31.738z"
+              />
+              <path
+                d="M55.345,39.729C54.916,39.909,54.462,40,53.993,40h-0.215c-0.553,0-1,0.447-1,1s0.447,1,1,1h0.215
+         c0.736,0,1.451-0.144,2.125-0.427c0.51-0.214,0.749-0.8,0.535-1.309C56.44,39.755,55.85,39.515,55.345,39.729z"
+              />
+              <path
+                d="M32.555,44.839c0.099-0.514,0.307-0.989,0.619-1.413c0.327-0.444,0.232-1.07-0.213-1.398
+         c-0.445-0.326-1.07-0.232-1.398,0.213c-0.489,0.666-0.817,1.413-0.973,2.222c-0.104,0.542,0.251,1.066,0.794,1.171
+         c0.063,0.012,0.127,0.018,0.189,0.018C32.043,45.65,32.462,45.317,32.555,44.839z"
+              />
+              <path
+                d="M34.122,50.594c0.38,0,0.742-0.217,0.91-0.584c0.229-0.503,0.009-1.096-0.493-1.325c-0.469-0.215-0.894-0.538-1.228-0.936
+         c-0.356-0.423-0.986-0.478-1.409-0.122c-0.423,0.355-0.478,0.986-0.122,1.409c0.524,0.623,1.19,1.131,1.927,1.467
+         C33.842,50.564,33.983,50.594,34.122,50.594z"
+              />
+              <path
+                d="M30.064,58h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1h2c0.553,0,1-0.447,1-1S30.616,58,30.064,58z"
+              />
+              <path
+                d="M36.064,58h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1h2c0.553,0,1-0.447,1-1S36.616,58,36.064,58z"
+              />
+              <path
+                d="M41.065,50c0-0.553-0.447-1-1-1h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1h2C40.617,51,41.065,50.553,41.065,50z"
+              />
+              <path
+                d="M42.064,58h-2c-0.553,0-1,0.447-1,1s0.447,1,1,1h2c0.553,0,1-0.447,1-1S42.616,58,42.064,58z"
+              />
+              <path
+                d="M21.021,28.977C18.75,26.412,15.722,25,12.493,25s-6.257,1.412-8.527,3.977c-4.612,5.211-4.612,13.688,0,18.899
+         l8.527,9.633l8.527-9.633C25.633,42.665,25.633,34.188,21.021,28.977z M12.493,43c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6
+         S15.802,43,12.493,43z"
+              />
+              <path
+                d="M48.747,24.507l6.464-7.286c3.478-3.92,3.478-10.296,0-14.216C53.491,1.067,51.195,0,48.746,0
+         c-2.448,0-4.744,1.067-6.464,3.005c-3.477,3.92-3.477,10.296,0,14.216L48.747,24.507z M48.993,4c3.032,0,5.5,2.468,5.5,5.5
+         s-2.468,5.5-5.5,5.5s-5.5-2.468-5.5-5.5S45.961,4,48.993,4z"
+              />
+            </g>
+          </svg>
+          Маршрутные листы
+        </div>
+        <div class="menu-item" id="control-menu-item" style="cursor: pointer">
+          <svg
+            width="25px"
+            height="25px"
+            viewBox="0 0 24 24"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+          >
+            <title>counter_2_line</title>
+            <g
+              id="页面-1"
+              stroke="none"
+              stroke-width="1"
+              fill="none"
+              fill-rule="evenodd"
+            >
+              <g id="Device" transform="translate(-432.000000, -192.000000)">
+                <g
+                  id="counter_2_line"
+                  transform="translate(432.000000, 192.000000)"
+                >
+                  <path
+                    d="M24,0 L24,24 L0,24 L0,0 L24,0 Z M12.5934901,23.257841 L12.5819402,23.2595131 L12.5108777,23.2950439 L12.4918791,23.2987469 L12.4918791,23.2987469 L12.4767152,23.2950439 L12.4056548,23.2595131 C12.3958229,23.2563662 12.3870493,23.2590235 12.3821421,23.2649074 L12.3780323,23.275831 L12.360941,23.7031097 L12.3658947,23.7234994 L12.3769048,23.7357139 L12.4804777,23.8096931 L12.4953491,23.8136134 L12.4953491,23.8136134 L12.5071152,23.8096931 L12.6106902,23.7357139 L12.6232938,23.7196733 L12.6232938,23.7196733 L12.6266527,23.7031097 L12.609561,23.275831 C12.6075724,23.2657013 12.6010112,23.2592993 12.5934901,23.257841 L12.5934901,23.257841 Z M12.8583906,23.1452862 L12.8445485,23.1473072 L12.6598443,23.2396597 L12.6498822,23.2499052 L12.6498822,23.2499052 L12.6471943,23.2611114 L12.6650943,23.6906389 L12.6699349,23.7034178 L12.6699349,23.7034178 L12.678386,23.7104931 L12.8793402,23.8032389 C12.8914285,23.8068999 12.9022333,23.8029875 12.9078286,23.7952264 L12.9118235,23.7811639 L12.8776777,23.1665331 C12.8752882,23.1545897 12.8674102,23.1470016 12.8583906,23.1452862 L12.8583906,23.1452862 Z M12.1430473,23.1473072 C12.1332178,23.1423925 12.1221763,23.1452606 12.1156365,23.1525954 L12.1099173,23.1665331 L12.0757714,23.7811639 C12.0751323,23.7926639 12.0828099,23.8018602 12.0926481,23.8045676 L12.108256,23.8032389 L12.3092106,23.7104931 L12.3186497,23.7024347 L12.3186497,23.7024347 L12.3225043,23.6906389 L12.340401,23.2611114 L12.337245,23.2485176 L12.337245,23.2485176 L12.3277531,23.2396597 L12.1430473,23.1473072 Z"
+                    id="MingCute"
+                    fill-rule="nonzero"
+                  ></path>
+                  <path
+                    d="M18,3 C19.0543909,3 19.9181678,3.81587733 19.9945144,4.85073759 L20,5 L20,20 C20,21.0543909 19.18415,21.9181678 18.1492661,21.9945144 L18,22 L6,22 C4.94563773,22 4.08183483,21.18415 4.00548573,20.1492661 L4,20 L4,5 C4,3.94563773 4.81587733,3.08183483 5.85073759,3.00548573 L6,3 L18,3 Z M18,5 L6,5 L6,20 L18,20 L18,5 Z M9.5,16 C10.3284,16 11,16.6716 11,17.5 C11,18.3284 10.3284,19 9.5,19 C8.67157,19 8,18.3284 8,17.5 C8,16.6716 8.67157,16 9.5,16 Z M14.5,16 C15.3284,16 16,16.6716 16,17.5 C16,18.3284 15.3284,19 14.5,19 C13.6716,19 13,18.3284 13,17.5 C13,16.6716 13.6716,16 14.5,16 Z M9.5,12 C10.3284,12 11,12.6716 11,13.5 C11,14.3284 10.3284,15 9.5,15 C8.67157,15 8,14.3284 8,13.5 C8,12.6716 8.67157,12 9.5,12 Z M14.5,12 C15.3284,12 16,12.6716 16,13.5 C16,14.3284 15.3284,15 14.5,15 C13.6716,15 13,14.3284 13,13.5 C13,12.6716 13.6716,12 14.5,12 Z M15.5,6 C16.2796706,6 16.9204457,6.59488554 16.9931332,7.35553954 L17,7.5 L17,9.5 C17,10.2796706 16.4050879,10.9204457 15.6444558,10.9931332 L15.5,11 L8.5,11 C7.72030118,11 7.079551,10.4050879 7.00686655,9.64445577 L7,9.5 L7,7.5 C7,6.72030118 7.59488554,6.079551 8.35553954,6.00686655 L8.5,6 L15.5,6 Z M15,8 L9,8 L9,9 L15,9 L15,8 Z"
+                    id="形状"
+                    fill="currentColor"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </svg>
+          Умные счетчики
+        </div>
+        <div class="menu-item" id="control-menu-item" style="cursor: pointer">
+          <svg
+            width="25px"
+            height="25px"
+            viewBox="0 -15 167 167"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M80.424 1.22594C97.141 1.47141 113.859 1.66489 130.575 1.98387C138.165 2.12892 145.505 3.45067 152.504 6.67854C158.39 9.39316 162.36 13.5558 163.592 19.9066C164.512 24.2761 165.052 28.7171 165.206 33.1798C165.329 40.0385 164.649 46.9097 164.706 53.7724C164.802 65.2281 165.187 76.6828 165.499 88.1365C165.641 93.3728 165.984 98.6044 166.081 103.841C166.211 110.244 163.919 116.459 159.663 121.243C157.706 123.579 155.547 125.737 153.211 127.693C146.081 133.535 137.911 136.104 128.603 135.678C114.198 135.021 99.7775 134.628 85.359 134.353C73.3422 134.122 61.3159 134.352 49.2991 134.11C42.8669 133.979 36.4348 133.433 30.0323 132.804C26.9042 132.496 23.8247 131.622 20.7451 130.909C15.7069 129.711 11.1744 126.955 7.7916 123.033C4.1043 118.906 3.59499 113.648 2.54091 108.377C-0.723061 92.0771 1.30693 75.733 2.1746 59.4147C2.76006 48.4099 3.76434 37.4274 4.59133 26.435C4.95297 21.6274 5.05079 16.9116 7.08544 12.4695C10.7767 4.40778 17.2796 0.36471 26.0194 0.533388C44.1534 0.883873 62.2894 1.14842 80.424 1.44771C80.4221 1.3742 80.4227 1.30011 80.424 1.22594ZM11.8839 72.0562C10.3389 84.4768 10.1453 96.6485 12.3434 108.778C13.5031 115.182 16.8326 119.97 23.3796 121.616C28.3343 122.863 33.4066 124.041 38.4794 124.333C48.5056 124.91 58.5678 124.844 68.6152 125.059C74.7316 125.19 80.8487 125.304 86.9631 125.503C101.706 125.982 116.45 126.457 131.188 127.034C134.416 127.192 137.642 126.711 140.683 125.619C143.724 124.528 146.52 122.846 148.91 120.672C154.65 115.646 158.282 109.637 158.003 101.608C157.691 92.6685 157.758 83.7154 157.641 74.7689C157.63 73.9333 157.473 73.1005 157.384 72.2603C156.276 72.3102 155.407 72.3916 154.54 72.3824C135.425 72.1094 116.311 71.7865 97.1954 71.5541C77.6418 71.3165 58.0875 71.0606 38.5339 71.0297C30.0244 71.0146 21.5143 71.5305 13.0023 71.8167C12.6238 71.8672 12.2499 71.9473 11.8839 72.0562ZM157.364 52.5119C157.567 50.0041 157.859 47.8521 157.889 45.6947C157.963 40.7827 158.02 35.8648 157.869 30.956C157.727 28.017 157.424 25.0878 156.962 22.182C156.364 17.9381 153.891 15.2341 150.046 13.3288C142.999 9.83507 135.468 8.79983 127.797 8.5793C115.342 8.22487 102.881 8.0642 90.4214 7.93162C79.1632 7.81151 67.9037 7.81611 56.6449 7.80889C47.9031 7.80298 39.1206 7.36396 30.43 8.02489C20.22 8.80134 17.9215 11.4799 15.2843 19.3467C15.0453 20.0726 14.9002 20.826 14.8525 21.5888C14.1918 31.6053 13.5508 41.6233 12.9295 51.6425C12.9696 52.0454 13.0708 52.4397 13.2299 52.8119C37.307 52.4372 61.2181 51.8139 85.1306 51.7621C109.043 51.7102 132.966 52.235 157.361 52.5119H157.364Z"
+              fill="currentcolor"
+            />
+            <path
+              d="M109.968 86.6174C110.629 86.4389 111.304 86.3175 111.987 86.2551C119.508 86.2742 127.031 86.2912 134.552 86.3864C137.154 86.4199 139.752 86.689 142.353 86.8294C144.055 86.9213 144.919 87.829 145.073 89.4896C145.367 92.6328 145.791 95.7701 145.927 98.9198C146.036 101.442 144.811 102.76 142.205 102.943C138.512 103.201 134.801 103.332 131.099 103.317C125.429 103.294 119.76 103.104 114.092 102.969C113.112 102.982 112.133 102.911 111.165 102.758C109.749 102.478 108.725 101.577 108.712 100.091C108.674 95.6775 107.997 91.1901 109.968 86.6174ZM140.028 91.0359L111.948 90.1662C112.31 92.8087 112.641 95.2286 113.027 98.0462C122.133 97.4148 130.975 98.929 140.028 98.2504V91.0359Z"
+              fill="currentcolor"
+            />
+          </svg>
+          Карта потребления
+        </div>
+        <div class="menu-item" id="control-menu-item" style="cursor: pointer">
+          <svg
+            width="22px"
+            fill="currentcolor"
+            height="25px"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 11.73a2 2 0 1 1 2 0V20H9v-8.27zm5.24 2.51l-1.41-1.41A3.99 3.99 0 0 0 10 6a4 4 0 0 0-2.83 6.83l-1.41 1.41a6 6 0 1 1 8.49 0zm2.83 2.83l-1.41-1.41a8 8 0 1 0-11.31 0l-1.42 1.41a10 10 0 1 1 14.14 0z"
+            />
+          </svg>
+          Сетя, станции, потери
+        </div>
+        <div class="menu-item" id="control-menu-item" style="cursor: pointer">
+          <svg
+            width="25px"
+            height="25px"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill="currentcolor"
+              fill-rule="evenodd"
+              d="M4,4 L4,3 C4,1.89543 4.89543,1 6,1 L10,1 C11.1046,1 12,1.895431 12,3 L12,4 L14,4 C15.1046,4 16,4.89543 16,6 L16,13 C16,14.1046 15.1046,15 14,15 L2,15 C0.895431,15 0,14.1046 0,13 L0,6 C0,4.89543 0.895431,4 2,4 L4,4 Z M6,3 L10,3 L10,4 L6,4 L6,3 Z M2,6 L2,8 L14,8 L14,6 L2,6 Z M2,13 L2,10 L7,10 L7,11 L9,11 L9,10 L14,10 L14,13 L2,13 Z"
+            />
+          </svg>
+          Работа по слоям
+        </div>
+        <div class="menu-item" id="control-menu-item" style="cursor: pointer">
+          <svg
+            version="1.1"
+            id="Capa_1"
+            width="25"
+            height="25"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            x="0px"
+            y="0px"
+            viewBox="0 0 332.039 332.039"
+            style="enable-background: new 0 0 332.039 332.039"
+            xml:space="preserve"
+          >
+            <g>
+              <path
+                d="M216.879,68.733l21.749-4.402V9.149c0-5.053-4.096-9.149-9.148-9.149H50.167c-5.052,0-9.147,4.096-9.147,9.149v313.742
+           c0,5.054,4.096,9.148,9.147,9.148H229.48c5.052,0,9.148-4.095,9.148-9.148V150.383l-23.198,15.71v97.449H64.217V25.464H215.43
+           v43.624C215.907,68.954,216.39,68.832,216.879,68.733z M139.824,279.303c8.541,0,15.464,6.924,15.464,15.466
+           s-6.923,15.464-15.464,15.464s-15.465-6.922-15.465-15.464S131.283,279.303,139.824,279.303z"
+              />
+              <path
+                d="M290.352,73.006c-0.559-0.679-1.392-1.059-2.25-1.059c-0.192,0-0.385,0.019-0.577,0.058l-67.229,13.607
+           c-1.005,0.203-1.829,0.919-2.171,1.885c-0.342,0.966-0.152,2.041,0.501,2.831l12.009,14.547l-69.54,59.929l-32.469-31.079
+           l-2.697-2.581l-2.477,2.164l-33.979,30.206l3.173,3.88l32.446-25.898l30.761,37.174l3.698,4.471l5.459-3.698l81.577-55.247
+           l13.178,15.961c0.558,0.676,1.386,1.06,2.249,1.06c0.145,0,0.29-0.011,0.435-0.034c1.014-0.153,1.872-0.827,2.263-1.774
+           l26.09-63.436C291.21,74.977,291.037,73.836,290.352,73.006z"
+              />
+            </g>
+          </svg>
+          Аналитика
+        </div>
+      </nav>
+      <div class="menu-section">
+        <div class="menu-item">
+          <svg
+            fill="currentColor"
+            width="25px"
+            height="25px"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4,12a1,1,0,0,0,1,1h7.59l-2.3,2.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0l4-4a1,1,0,0,0,.21-.33,1,1,0,0,0,0-.76,1,1,0,0,0-.21-.33l-4-4a1,1,0,1,0-1.42,1.42L12.59,11H5A1,1,0,0,0,4,12ZM17,2H7A3,3,0,0,0,4,5V8A1,1,0,0,0,6,8V5A1,1,0,0,1,7,4H17a1,1,0,0,1,1,1V19a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V16a1,1,0,0,0-2,0v3a3,3,0,0,0,3,3H17a3,3,0,0,0,3-3V5A3,3,0,0,0,17,2Z"
+            /></svg
+          >Выход
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+      <!-- Dashboard View -->
+      <section class="main-content" id="dashboard-content">
+        <div class="upload-section">
+          <h1>Загрузите базу клиентов для выявления не соответствие</h1>
+          <div class="upload-area">
+            <p>В данную область вы можете перетащить файл с папки</p>
+            <div class="button-group">
+              <input type="file" id="file-upload" style="display: none" />
+              <label for="file-upload" class="btn"
+                >Загрузить файл с компьютера</label
+              >
+              <button class="btn secondary" id="submit-file">Отправить</button>
+            </div>
+            <div id="upload-status" style="margin-top: 15px; display: none">
+              <p class="status-message"></p>
+              <div
+                class="progress-bar"
+                style="
+                  width: 100%;
+                  height: 4px;
+                  background: #1b2555;
+                  border-radius: 2px;
+                  margin-top: 8px;
+                  overflow: hidden;
+                "
+              >
+                <div
+                  class="progress-fill"
+                  style="
+                    width: 0%;
+                    height: 100%;
+                    background: #4318ff;
+                    transition: width 0.3s ease;
+                  "
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+          // Add event listener to file input to toggle active class on label.btn
+          const fileInput = document.getElementById("file-upload");
+          const fileLabel = document.querySelector("label[for='file-upload']");
+          const submitButton = document.getElementById("submit-file");
+          const uploadStatus = document.getElementById("upload-status");
+          const statusMessage = uploadStatus.querySelector(".status-message");
+          const progressFill = uploadStatus.querySelector(".progress-fill");
+
+          let currentReportId = null;
+
+          fileInput.addEventListener("change", () => {
+            if (fileInput.files.length > 0) {
+              fileLabel.classList.add("active");
+              submitButton.disabled = false;
+            } else {
+              fileLabel.classList.remove("active");
+              submitButton.disabled = true;
+            }
+          });
+
+          // Initialize submit button as disabled
+          submitButton.disabled = true;
+
+          submitButton.addEventListener("click", async () => {
+            if (!fileInput.files.length) {
+              alert("Пожалуйста, выберите файл для загрузки");
+              return;
+            }
+
+            const file = fileInput.files[0];
+            uploadStatus.style.display = "block";
+            submitButton.disabled = true;
+
+            try {
+              // Step 1: Create report
+              statusMessage.textContent = "Создание отчета...";
+              progressFill.style.width = "20%";
+              currentReportId = await createReport();
+
+              // Step 2: Upload file
+              statusMessage.textContent = "Загрузка файла...";
+              progressFill.style.width = "60%";
+              await uploadFileToReport(currentReportId, file);
+
+              // Step 3: Start check
+              statusMessage.textContent = "Начало проверки...";
+              progressFill.style.width = "90%";
+              await checkReport(currentReportId);
+
+              // Complete
+              statusMessage.textContent =
+                "Файл успешно загружен и отправлен на проверку";
+              progressFill.style.width = "100%";
+
+              // Reset form after 3 seconds
+              setTimeout(() => {
+                uploadStatus.style.display = "none";
+                progressFill.style.width = "0%";
+                fileInput.value = "";
+                fileLabel.classList.remove("active");
+                submitButton.disabled = true;
+              }, 3000);
+            } catch (error) {
+              console.error("Error during file processing:", error);
+              statusMessage.textContent =
+                "Произошла ошибка при обработке файла";
+              statusMessage.style.color = "#ff4444";
+              progressFill.style.background = "#ff4444";
+
+              // Reset error state after 3 seconds
+              setTimeout(() => {
+                uploadStatus.style.display = "none";
+                progressFill.style.width = "0%";
+                progressFill.style.background = "#4318ff";
+                statusMessage.style.color = "";
+                submitButton.disabled = false;
+              }, 3000);
+            }
+          });
+
+          // Add drag and drop support
+          const uploadArea = document.querySelector(".upload-area");
+
+          uploadArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            uploadArea.classList.add("drag-over");
+          });
+
+          uploadArea.addEventListener("dragleave", () => {
+            uploadArea.classList.remove("drag-over");
+          });
+
+          uploadArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove("drag-over");
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+              fileInput.files = files;
+              fileLabel.classList.add("active");
+              submitButton.disabled = false;
+            }
+          });
+        </script>
+
+        <div class="stats-section">
+          <div class="stats-header">
+            <h2>Загрузить файл с компьютера</h2>
+          </div>
+          <div class="stats-grid">
+            <div
+              style="display: flex; flex-direction: column; align-items: center"
+            >
+              <div class="progress-circle">
+                <div class="progress-content">
+                  <div class="progress-value">68%</div>
+                </div>
+              </div>
+              <div class="time-labels">
+                <div class="time-item">
+                  <div class="time-value">02</div>
+                  <div class="time-label">Часы</div>
+                </div>
+                <div class="time-item">
+                  <div class="time-value">45</div>
+                  <div class="time-label">Минуты</div>
+                </div>
+                <div class="time-item">
+                  <div class="time-value">30</div>
+                  <div class="time-label">Секунды</div>
+                </div>
+              </div>
+            </div>
+            <div class="stats-cards">
+              <div class="stat-card">
+                <h3>Battery Health</h3>
+                <p class="stat-value">76%</p>
+              </div>
+              <div class="stat-card">
+                <h3>Efficiency</h3>
+                <p class="stat-value">+20%</p>
+              </div>
+              <div class="stat-card">
+                <h3>Consumption</h3>
+                <p class="stat-value">163W/km</p>
+              </div>
+              <div class="stat-card">
+                <h3>This Week</h3>
+                <p class="stat-value">1.342km</p>
+              </div>
+              <div class="stat-card">
+                <h3>Energy Usage</h3>
+                <p class="stat-value">2.4kWh</p>
+              </div>
+              <div class="stat-card">
+                <h3>Peak Power</h3>
+                <p class="stat-value">3.8kW</p>
+              </div>
+              <div class="stat-card">
+                <h3>Daily Average</h3>
+                <p class="stat-value">192W</p>
+              </div>
+              <div class="stat-card">
+                <h3>Total Distance</h3>
+                <p class="stat-value">4,521km</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="anomaly-btn">Перейти к аномалиям</button>
+      </section>
+
+      <!-- Authors Table View -->
+      <section class="main-content" id="authors-content" style="display: none">
+        <div class="authors-section">
+          <div class="authors-header">
+            <h1>Authors Table</h1>
+          </div>
+          <div class="authors-table">
+            <div class="grid-header">
+              <div>ID</div>
+              <div class="search-field-container">
+                <input
+                  type="text"
+                  class="search-field"
+                  placeholder="Поиск по ФИО..."
+                />
+                <svg
+                  class="search-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
+                    stroke="#8F9BBA"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <div>Контакты</div>
+              <div>Адрес объекта</div>
+              <div>Тип клиента</div>
+              <div>Тип строения</div>
+              <div>Кол-во комнат</div>
+              <div>Кол-во жильцов</div>
+              <div>Площадь (м²)</div>
+              <div>Сумма за год</div>
+              <div>Среднее в месяц</div>
+              <div>Макс. за месяц</div>
+              <div>Мин. за месяц</div>
+              <div>Индекс сезонности</div>
+              <div>На 1 м²</div>
+              <div>На 1 человека</div>
+              <div class="status-header">Статус</div>
+              <div class="probability-header">Вероятность</div>
+              <div>Яндекс карта</div>
+              <div>2ГИС</div>
+              <div>Авито</div>
+              <div class="actions-header">
+                <span>Действия</span>
+              </div>
+            </div>
+            <div class="grid-row">
+              <div>KW-001</div>
+              <div class="fio-cell">Иванов Иван Иванович</div>
+              <div>ivanov@mail.ru<br />+7 (900) 123-45-67</div>
+              <div>г. Москва, ул. Ленина, д. 1, кв. 123</div>
+              <div>Некоммерческий</div>
+              <div>Многоквартирный</div>
+              <div>3</div>
+              <div>4</div>
+              <div>75.5</div>
+              <div>3600 кВт⋅ч</div>
+              <div>300 кВт⋅ч</div>
+              <div>450 кВт⋅ч</div>
+              <div>180 кВт⋅ч</div>
+              <div>2.5</div>
+              <div>47.7 кВт⋅ч/м²</div>
+              <div>900 кВт⋅ч/чел</div>
+              <div class="status-normal status-indicator">Нормальный</div>
+              <div class="probability-value">25%</div>
+              <div>
+                <a
+                  href="https://yandex.ru/maps/?text=г. Москва, ул. Ленина, д. 1, кв. 123"
+                  target="_blank"
+                  >Карта</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://2gis.ru/moscow/search/г. Москва, ул. Ленина, д. 1, кв. 123"
+                  target="_blank"
+                  >2ГИС</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://www.avito.ru/moskva?q=ул. Ленина, д. 1"
+                  target="_blank"
+                  >Авито</a
+                >
+              </div>
+              <div>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="row-checkbox" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+            <div class="grid-row">
+              <div>KW-002</div>
+              <div class="fio-cell">Петрова Анна Сергеевна</div>
+              <div>petrova@mail.ru<br />+7 (900) 234-56-78</div>
+              <div>г. Москва, ул. Пушкина, д. 15, кв. 42</div>
+              <div>Некоммерческий</div>
+              <div>Многоквартирный</div>
+              <div>2</div>
+              <div>2</div>
+              <div>45.8</div>
+              <div>2400 кВт⋅ч</div>
+              <div>200 кВт⋅ч</div>
+              <div>320 кВт⋅ч</div>
+              <div>140 кВт⋅ч</div>
+              <div>2.3</div>
+              <div>52.4 кВт⋅ч/м²</div>
+              <div>1200 кВт⋅ч/чел</div>
+              <div class="status-warning status-indicator">
+                Требует внимания
+              </div>
+              <div class="probability-value">65%</div>
+              <div>
+                <a
+                  href="https://yandex.ru/maps/?text=г. Москва, ул. Пушкина, д. 15, кв. 42"
+                  target="_blank"
+                  >Карта</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://2gis.ru/moscow/search/г. Москва, ул. Пушкина, д. 15, кв. 42"
+                  target="_blank"
+                  >2ГИС</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://www.avito.ru/moskva?q=ул. Пушкина, д. 15"
+                  target="_blank"
+                  >Авито</a
+                >
+              </div>
+              <div>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="row-checkbox" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+            <div class="grid-row">
+              <div>KW-003</div>
+              <div class="fio-cell">Сидоров Петр Михайлович</div>
+              <div>sidorov@mail.ru<br />+7 (900) 345-67-89</div>
+              <div>г. Москва, ул. Гагарина, д. 7</div>
+              <div>Коммерческий</div>
+              <div>Частный</div>
+              <div>5</div>
+              <div>3</div>
+              <div>120.0</div>
+              <div>6000 кВт⋅ч</div>
+              <div>500 кВт⋅ч</div>
+              <div>720 кВт⋅ч</div>
+              <div>280 кВт⋅ч</div>
+              <div>2.6</div>
+              <div>50.0 кВт⋅ч/м²</div>
+              <div>2000 кВт⋅ч/чел</div>
+              <div class="status-danger status-indicator">Аномальный</div>
+              <div class="probability-value">95%</div>
+              <div>
+                <a
+                  href="https://yandex.ru/maps/?text=г. Москва, ул. Гагарина, д. 7"
+                  target="_blank"
+                  >Карта</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://2gis.ru/moscow/search/г. Москва, ул. Гагарина, д. 7"
+                  target="_blank"
+                  >2ГИС</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://www.avito.ru/moskva?q=ул. Гагарина, д. 7"
+                  target="_blank"
+                  >Авито</a
+                >
+              </div>
+              <div>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="row-checkbox" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+            <div class="grid-row">
+              <div>KW-004</div>
+              <div class="fio-cell">Козлова Мария Александровна</div>
+              <div>kozlova@mail.ru<br />+7 (900) 456-78-90</div>
+              <div>г. Москва, ул. Тверская, д. 25, кв. 89</div>
+              <div>Некоммерческий</div>
+              <div>Многоквартирный</div>
+              <div>4</div>
+              <div>5</div>
+              <div>98.3</div>
+              <div>4800 кВт⋅ч</div>
+              <div>400 кВт⋅ч</div>
+              <div>580 кВт⋅ч</div>
+              <div>220 кВт⋅ч</div>
+              <div>2.7</div>
+              <div>48.8 кВт⋅ч/м²</div>
+              <div>960 кВт⋅ч/чел</div>
+              <div class="status-warning status-indicator">
+                Требует внимания
+              </div>
+              <div class="probability-value">55%</div>
+              <div>
+                <a
+                  href="https://yandex.ru/maps/?text=г. Москва, ул. Тверская, д. 25, кв. 89"
+                  target="_blank"
+                  >Карта</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://2gis.ru/moscow/search/г. Москва, ул. Тверская, д. 25, кв. 89"
+                  target="_blank"
+                  >2ГИС</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://www.avito.ru/moskva?q=ул. Тверская, д. 25"
+                  target="_blank"
+                  >Авито</a
+                >
+              </div>
+              <div>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="row-checkbox" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid-row">
+              <div>KW-005</div>
+              <div class="fio-cell">Смирнов Алексей Петрович</div>
+              <div>smirnov@mail.ru<br />+7 (900) 567-89-01</div>
+              <div>г. Москва, Кутузовский пр-т, д. 12, кв. 145</div>
+              <div>Коммерческий</div>
+              <div>Многоквартирный</div>
+              <div>3</div>
+              <div>2</div>
+              <div>82.5</div>
+              <div>5200 кВт⋅ч</div>
+              <div>433 кВт⋅ч</div>
+              <div>620 кВт⋅ч</div>
+              <div>250 кВт⋅ч</div>
+              <div>2.4</div>
+              <div>63.0 кВт⋅ч/м²</div>
+              <div>2600 кВт⋅ч/чел</div>
+              <div class="status-danger status-indicator">Аномальный</div>
+              <div class="probability-value">88%</div>
+              <div>
+                <a
+                  href="https://yandex.ru/maps/?text=г. Москва, Кутузовский пр-т, д. 12, кв. 145"
+                  target="_blank"
+                  >Карта</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://2gis.ru/moscow/search/г. Москва, Кутузовский пр-т, д. 12, кв. 145"
+                  target="_blank"
+                  >2ГИС</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://www.avito.ru/moskva?q=Кутузовский пр-т, д. 12"
+                  target="_blank"
+                  >Авито</a
+                >
+              </div>
+              <div>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="row-checkbox" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid-row">
+              <div>KW-006</div>
+              <div class="fio-cell">Новиков Дмитрий Сергеевич</div>
+              <div>novikov@mail.ru<br />+7 (900) 678-90-12</div>
+              <div>г. Москва, Ленинградский пр-т, д. 78, кв. 203</div>
+              <div>Некоммерческий</div>
+              <div>Многоквартирный</div>
+              <div>2</div>
+              <div>1</div>
+              <div>45.0</div>
+              <div>1800 кВт⋅ч</div>
+              <div>150 кВт⋅ч</div>
+              <div>220 кВт⋅ч</div>
+              <div>90 кВт⋅ч</div>
+              <div>2.2</div>
+              <div>40.0 кВт⋅ч/м²</div>
+              <div>1800 кВт⋅ч/чел</div>
+              <div class="status-normal status-indicator">Нормальный</div>
+              <div class="probability-value">15%</div>
+              <div>
+                <a
+                  href="https://yandex.ru/maps/?text=г. Москва, Ленинградский пр-т, д. 78, кв. 203"
+                  target="_blank"
+                  >Карта</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://2gis.ru/moscow/search/г. Москва, Ленинградский пр-т, д. 78, кв. 203"
+                  target="_blank"
+                  >2ГИС</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://www.avito.ru/moskva?q=Ленинградский пр-т, д. 78"
+                  target="_blank"
+                  >Авито</a
+                >
+              </div>
+              <div>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="row-checkbox" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid-row">
+              <div>KW-007</div>
+              <div class="fio-cell">Морозова Екатерина Владимировна</div>
+              <div>morozova@mail.ru<br />+7 (900) 789-01-23</div>
+              <div>г. Москва, Проспект Мира, д. 56, кв. 78</div>
+              <div>Коммерческий</div>
+              <div>Частный</div>
+              <div>6</div>
+              <div>4</div>
+              <div>150.0</div>
+              <div>7200 кВт⋅ч</div>
+              <div>600 кВт⋅ч</div>
+              <div>850 кВт⋅ч</div>
+              <div>380 кВт⋅ч</div>
+              <div>2.8</div>
+              <div>48.0 кВт⋅ч/м²</div>
+              <div>1800 кВт⋅ч/чел</div>
+              <div class="status-danger status-indicator">Аномальный</div>
+              <div class="probability-value">92%</div>
+              <div>
+                <a
+                  href="https://yandex.ru/maps/?text=г. Москва, Проспект Мира, д. 56, кв. 78"
+                  target="_blank"
+                  >Карта</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://2gis.ru/moscow/search/г. Москва, Проспект Мира, д. 56, кв. 78"
+                  target="_blank"
+                  >2ГИС</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://www.avito.ru/moskva?q=Проспект Мира, д. 56"
+                  target="_blank"
+                  >Авито</a
+                >
+              </div>
+              <div>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="row-checkbox" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid-row">
+              <div>KW-008</div>
+              <div class="fio-cell">Волков Андрей Игоревич</div>
+              <div>volkov@mail.ru<br />+7 (900) 890-12-34</div>
+              <div>г. Москва, ул. Арбат, д. 23, кв. 15</div>
+              <div>Некоммерческий</div>
+              <div>Многоквартирный</div>
+              <div>1</div>
+              <div>1</div>
+              <div>38.5</div>
+              <div>1500 кВт⋅ч</div>
+              <div>125 кВт⋅ч</div>
+              <div>180 кВт⋅ч</div>
+              <div>85 кВт⋅ч</div>
+              <div>2.1</div>
+              <div>39.0 кВт⋅ч/м²</div>
+              <div>1500 кВт⋅ч/чел</div>
+              <div class="status-normal status-indicator">Нормальный</div>
+              <div class="probability-value">12%</div>
+              <div>
+                <a
+                  href="https://yandex.ru/maps/?text=г. Москва, ул. Арбат, д. 23, кв. 15"
+                  target="_blank"
+                  >Карта</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://2gis.ru/moscow/search/г. Москва, ул. Арбат, д. 23, кв. 15"
+                  target="_blank"
+                  >2ГИС</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://www.avito.ru/moskva?q=ул. Арбат, д. 23"
+                  target="_blank"
+                  >Авито</a
+                >
+              </div>
+              <div>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="row-checkbox" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid-row">
+              <div>KW-009</div>
+              <div class="fio-cell">Соколова Ольга Дмитриевна</div>
+              <div>sokolova@mail.ru<br />+7 (900) 901-23-45</div>
+              <div>г. Москва, Комсомольский пр-т, д. 34, кв. 167</div>
+              <div>Коммерческий</div>
+              <div>Многоквартирный</div>
+              <div>4</div>
+              <div>3</div>
+              <div>95.7</div>
+              <div>5800 кВт⋅ч</div>
+              <div>483 кВт⋅ч</div>
+              <div>680 кВт⋅ч</div>
+              <div>290 кВт⋅ч</div>
+              <div>2.6</div>
+              <div>60.6 кВт⋅ч/м²</div>
+              <div>1933 кВт⋅ч/чел</div>
+              <div class="status-warning status-indicator">
+                Требует внимания
+              </div>
+              <div class="probability-value">78%</div>
+              <div>
+                <a
+                  href="https://yandex.ru/maps/?text=г. Москва, Комсомольский пр-т, д. 34, кв. 167"
+                  target="_blank"
+                  >Карта</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://2gis.ru/moscow/search/г. Москва, Комсомольский пр-т, д. 34, кв. 167"
+                  target="_blank"
+                  >2ГИС</a
+                >
+              </div>
+              <div>
+                <a
+                  href="https://www.avito.ru/moskva?q=Комсомольский пр-т, д. 34"
+                  target="_blank"
+                  >Авито</a
+                >
+              </div>
+              <div>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="row-checkbox" />
+                  <span class="checkmark"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="footer__main">
+            <div class="pagination">
+              <div class="pagination-controls">
+                <button class="pagination-button" disabled title="В начало">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="19 18 13 12 19 6"></polyline>
+                    <polyline points="13 18 7 12 13 6"></polyline>
+                  </svg>
+                </button>
+                <button class="pagination-button" disabled title="Предыдущая">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <div class="pagination-numbers">
+                  <div class="page-number active">1</div>
+                  <div class="page-number">2</div>
+                  <div class="page-number">3</div>
+                  <div class="page-ellipsis">...</div>
+                  <div class="page-number">10</div>
+                </div>
+                <button class="pagination-button" title="Следующая">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+                <button class="pagination-button" title="В конец">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="5 18 11 12 5 6"></polyline>
+                    <polyline points="11 18 17 12 11 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <button
+              id="controlActionBtn"
+              onclick="ControlActionModule.handleControlAction()"
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>Добавить в контроль</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Control Panel View -->
+      <section class="main-content" id="control-content" style="display: none">
+        <div class="control-section">
+          <div class="control-header">
+            <h1>Мониторинг потребления</h1>
+          </div>
+          <div class="control-body">
+            <div class="monitoring-dashboard">
+              <div class="monitoring-stats">
+                <div class="stat-card">
+                  <h3>Общее потребление</h3>
+                  <p class="stat-value">24,500 кВт⋅ч</p>
+                  <div class="stat-trend up">+12.5%</div>
+                </div>
+                <div class="stat-card">
+                  <h3>Среднее в месяц</h3>
+                  <p class="stat-value">2,042 кВт⋅ч</p>
+                  <div class="stat-trend down">-3.2%</div>
+                </div>
+                <div class="stat-card">
+                  <h3>Пиковая нагрузка</h3>
+                  <p class="stat-value">3.8 кВт</p>
+                  <div class="stat-trend up">+8.7%</div>
+                </div>
+                <div class="stat-card">
+                  <h3>Аномалии</h3>
+                  <p class="stat-value">5</p>
+                  <div class="stat-trend neutral">0%</div>
+                </div>
+              </div>
+
+              <div class="monitoring-chart">
+                <h3>График потребления</h3>
+                <div class="chart-placeholder">График будет добавлен позже</div>
+              </div>
+
+              <div class="monitoring-alerts">
+                <h3>Последние уведомления</h3>
+                <div class="alert-list">
+                  <div class="alert-item warning">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                      <h4>Повышенное потребление</h4>
+                      <p>Обнаружено превышение среднего потребления на 25%</p>
+                      <span class="alert-time">2 часа назад</span>
+                    </div>
+                  </div>
+                  <div class="alert-item danger">
+                    <div class="alert-icon">🚨</div>
+                    <div class="alert-content">
+                      <h4>Критическая нагрузка</h4>
+                      <p>Зафиксирована пиковая нагрузка выше допустимой</p>
+                      <span class="alert-time">5 часов назад</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modals and Popups -->
+    <div class="modal-container">
+      <!-- Add overlay and popup outside the table -->
+      <div class="popup-overlay"></div>
+      <div class="status-popup">
+        <div class="status-popup-title">Выберите статус</div>
+        <div class="status-popup-item" data-status="all">
+          <div class="color-dot all"></div>
+          Все
+        </div>
+        <div class="status-popup-item" data-status="normal">
+          <div class="color-dot green"></div>
+          Нормальный
+        </div>
+        <div class="status-popup-item" data-status="warning">
+          <div class="color-dot yellow"></div>
+          Требует внимания
+        </div>
+        <div class="status-popup-item" data-status="danger">
+          <div class="color-dot red"></div>
+          Аномальный
+        </div>
+      </div>
+
+      <!-- Add probability popup -->
+      <div class="probability-popup">
+        <div class="status-popup-title">Выберите диапазон вероятности</div>
+        <div class="status-popup-item" data-probability="all">
+          <div class="color-dot all"></div>
+          Все
+        </div>
+        <div class="status-popup-item" data-probability="range1">
+          <div class="color-dot range1"></div>
+          0-20%
+        </div>
+        <div class="status-popup-item" data-probability="range2">
+          <div class="color-dot range2"></div>
+          20-40%
+        </div>
+        <div class="status-popup-item" data-probability="range3">
+          <div class="color-dot range3"></div>
+          40-60%
+        </div>
+        <div class="status-popup-item" data-probability="range4">
+          <div class="color-dot range4"></div>
+          60-80%
+        </div>
+        <div class="status-popup-item" data-probability="range5">
+          <div class="color-dot range5"></div>
+          80-100%
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Constants
+      const CONSTANTS = {
+        ITEMS_PER_PAGE: 10,
+        ANIMATION_DURATION: 300,
+        STATUS_CLASSES: {
+          NORMAL: "status-normal",
+          WARNING: "status-warning",
+          DANGER: "status-danger",
+        },
+      };
+
+      // DOM Elements
+      const DOM = {
+        fileUpload: {
+          input: document.getElementById("file-upload"),
+          area: document.querySelector(".upload-area"),
+          text: document.querySelector(".upload-area p"),
+        },
+        navigation: {
+          menuItems: document.querySelectorAll(".menu-item"),
+          anomalyBtn: document.querySelector(".anomaly-btn"),
+        },
+        content: {
+          dashboard: document.getElementById("dashboard-content"),
+          authors: document.getElementById("authors-content"),
+          control: document.getElementById("control-content"),
+        },
+        table: {
+          statusHeader: document.querySelector(".status-header"),
+          probabilityHeader: document.querySelector(".probability-header"),
+          rows: document.querySelectorAll(".grid-row"),
+          checkboxes: document.querySelectorAll(".row-checkbox"),
+        },
+        popups: {
+          overlay: document.querySelector(".popup-overlay"),
+          status: document.querySelector(".status-popup"),
+          probability: document.querySelector(".probability-popup"),
+          statusItems: document.querySelectorAll(".status-popup-item"),
+          probabilityItems: document.querySelectorAll(
+            ".probability-popup .status-popup-item"
+          ),
+        },
+        pagination: {
+          container: document.querySelector(".pagination"),
+          numbers: document.querySelector(".pagination-numbers"),
+          firstBtn: document.querySelector(".pagination-button:first-child"),
+          prevBtn: document.querySelector(".pagination-button:nth-child(2)"),
+          nextBtn: document.querySelector(".pagination-button:nth-child(4)"),
+          lastBtn: document.querySelector(".pagination-button:last-child"),
+        },
+      };
+
+      // State Management
+      const state = {
+        selectedStatus: "all",
+        selectedProbability: "all",
+        currentPage: 1,
+        itemsPerPage: CONSTANTS.ITEMS_PER_PAGE,
+        totalItems: DOM.table.rows.length,
+      };
+
+      // File Upload Module
+      const FileUploadModule = {
+        init() {
+          this.setupDragAndDrop();
+          this.setupFileInput();
+        },
+
+        setupDragAndDrop() {
+          DOM.fileUpload.area.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            DOM.fileUpload.area.style.borderColor = "#4318ff";
+          });
+
+          DOM.fileUpload.area.addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            DOM.fileUpload.area.style.borderColor = "rgba(255, 255, 255, 0.2)";
+          });
+
+          DOM.fileUpload.area.addEventListener("drop", (e) => {
+            e.preventDefault();
+            DOM.fileUpload.area.style.borderColor = "rgba(255, 255, 255, 0.2)";
+
+            if (e.dataTransfer.files.length > 0) {
+              this.handleFileSelection(e.dataTransfer.files[0]);
+            }
+          });
+        },
+
+        setupFileInput() {
+          DOM.fileUpload.input.addEventListener("change", (e) => {
+            if (e.target.files.length > 0) {
+              this.handleFileSelection(e.target.files[0]);
+            }
+          });
+        },
+
+        handleFileSelection(file) {
+          DOM.fileUpload.text.textContent = `Выбран файл: ${file.name}`;
+          // Additional file processing logic can be added here
+        },
+      };
+
+      // Navigation Module
+      const NavigationModule = {
+        init() {
+          this.setupMenuNavigation();
+          this.setupAnomalyButton();
+        },
+
+        setupMenuNavigation() {
+          DOM.navigation.menuItems.forEach((item, index) => {
+            item.addEventListener("click", () => {
+              this.updateActiveMenu(item);
+              this.showContent(index);
+            });
+          });
+        },
+
+        setupAnomalyButton() {
+          DOM.navigation.anomalyBtn.addEventListener("click", () => {
+            DOM.content.dashboard.style.display = "none";
+            DOM.content.authors.style.display = "block";
+            this.updateActiveMenu(DOM.navigation.menuItems[1]);
+          });
+        },
+
+        updateActiveMenu(activeItem) {
+          DOM.navigation.menuItems.forEach((item) =>
+            item.classList.remove("active")
+          );
+          activeItem.classList.add("active");
+        },
+
+        showContent(index) {
+          Object.values(DOM.content).forEach(
+            (content) => (content.style.display = "none")
+          );
+
+          switch (index) {
+            case 0:
+              DOM.content.dashboard.style.display = "block";
+              break;
+            case 1:
+              DOM.content.authors.style.display = "block";
+              break;
+            // Add other cases as needed
+          }
+        },
+      };
+
+      // Table Filter Module
+      const TableFilterModule = {
+        state: {
+          selectedStatus: "all",
+          selectedProbability: "all",
+          selectedRows: new Set(),
+          statusMap: {
+            normal: "Нормальный",
+            warning: "Требует внимания",
+            danger: "Аномальный",
+          },
+          probabilityRanges: {
+            range1: { min: 0, max: 20, label: "0-20%" },
+            range2: { min: 20, max: 40, label: "20-40%" },
+            range3: { min: 40, max: 60, label: "40-60%" },
+            range4: { min: 60, max: 80, label: "60-80%" },
+            range5: { min: 80, max: 100, label: "80-100%" },
+          },
+        },
+
+        init() {
+          this.setupStatusFilter();
+          this.setupProbabilityFilter();
+          this.setupPopupClosing();
+          this.setupCheckboxHandling();
+          this.initializeControlView();
+        },
+
+        setupStatusFilter() {
+          const statusHeader = document.querySelector(".status-header");
+          const statusPopup = document.querySelector(".status-popup");
+
+          if (statusHeader && statusPopup) {
+            // Открытие попапа при клике на заголовок
+            statusHeader.addEventListener("click", (e) => {
+              e.stopPropagation();
+              this.toggleStatusPopup(true);
+            });
+
+            // Обработка выбора статуса
+            const statusItems =
+              statusPopup.querySelectorAll(".status-popup-item");
+            statusItems.forEach((item) => {
+              item.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const status = item.getAttribute("data-status");
+                this.filterByStatus(status);
+                this.toggleStatusPopup(false);
+              });
+            });
+          }
+        },
+
+        toggleStatusPopup(show = true) {
+          const popup = document.querySelector(".status-popup");
+          const overlay = document.querySelector(".popup-overlay");
+
+          if (show) {
+            popup?.classList.add("show");
+            overlay?.classList.add("show");
+          } else {
+            popup?.classList.remove("show");
+            overlay?.classList.remove("show");
+          }
+        },
+
+        filterByStatus(status) {
+          this.state.selectedStatus = status;
+          const rows = document.querySelectorAll(".grid-row");
+
+          rows.forEach((row) => {
+            const statusIndicator = row.querySelector(".status-indicator");
+            if (!statusIndicator) return;
+
+            const rowStatus = statusIndicator.textContent.trim();
+            let showRow = false;
+
+            if (status === "all") {
+              showRow = true;
+            } else {
+              // Сопоставляем выбранный статус с текстом в строке
+              const mappedStatus = this.state.statusMap[status];
+              showRow = rowStatus === mappedStatus;
+            }
+
+            // Применяем видимость строки
+            row.style.display = showRow ? "" : "none";
+          });
+
+          // Обновляем состояние заголовка
+          this.updateStatusHeaderState(status);
+        },
+
+        updateStatusHeaderState(status) {
+          const header = document.querySelector(".status-header");
+          if (!header) return;
+
+          // Удаляем все классы статусов
+          header.classList.remove(
+            "status-normal",
+            "status-warning",
+            "status-danger"
+          );
+
+          if (status !== "all") {
+            header.classList.add(`status-${status}`);
+            header.textContent = this.state.statusMap[status];
+          } else {
+            header.textContent = "Статус";
+          }
+        },
+
+        // Добавляем обработку закрытия попапа по клику вне его
+        setupPopupClosing() {
+          document.addEventListener("click", (e) => {
+            const statusPopup = document.querySelector(".status-popup");
+            const probabilityPopup =
+              document.querySelector(".probability-popup");
+            const statusHeader = document.querySelector(".status-header");
+            const probabilityHeader = document.querySelector(
+              ".probability-header"
+            );
+
+            // Если клик был вне попапа и его заголовка
+            if (
+              !e.target.closest(".status-popup") &&
+              !e.target.closest(".status-header") &&
+              !e.target.closest(".probability-popup") &&
+              !e.target.closest(".probability-header")
+            ) {
+              this.toggleStatusPopup(false);
+              this.toggleProbabilityPopup(false);
+            }
+          });
+
+          // Закрытие по ESC
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+              this.toggleStatusPopup(false);
+              this.toggleProbabilityPopup(false);
+            }
+          });
+        },
+
+        setupProbabilityFilter() {
+          const probabilityHeader = document.querySelector(
+            ".probability-header"
+          );
+          const probabilityPopup = document.querySelector(".probability-popup");
+
+          if (probabilityHeader && probabilityPopup) {
+            probabilityHeader.addEventListener("click", (e) => {
+              e.stopPropagation();
+              this.toggleProbabilityPopup(true);
+            });
+
+            const probabilityItems =
+              probabilityPopup.querySelectorAll(".status-popup-item");
+            probabilityItems.forEach((item) => {
+              item.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const range = item.getAttribute("data-probability");
+                this.filterByProbability(range);
+                this.toggleProbabilityPopup(false);
+              });
+            });
+          }
+        },
+
+        toggleProbabilityPopup(show = true) {
+          const popup = document.querySelector(".probability-popup");
+          const overlay = document.querySelector(".popup-overlay");
+
+          if (show) {
+            popup?.classList.add("show");
+            overlay?.classList.add("show");
+          } else {
+            popup?.classList.remove("show");
+            overlay?.classList.remove("show");
+          }
+        },
+
+        filterByProbability(range) {
+          this.state.selectedProbability = range;
+          const rows = document.querySelectorAll(".grid-row");
+
+          rows.forEach((row) => {
+            const probabilityCell = row.querySelector(".probability-value");
+            if (!probabilityCell) return;
+
+            const probability = parseInt(probabilityCell.textContent);
+            let showRow = false;
+
+            if (range === "all") {
+              showRow = true;
+            } else {
+              const rangeValues = this.state.probabilityRanges[range];
+              if (rangeValues) {
+                showRow =
+                  probability >= rangeValues.min &&
+                  probability < rangeValues.max;
+              }
+            }
+
+            row.style.display = showRow ? "" : "none";
+          });
+
+          this.updateProbabilityHeaderState(range);
+        },
+
+        updateProbabilityHeaderState(range) {
+          const header = document.querySelector(".probability-header");
+          if (!header) return;
+
+          // Remove existing range classes
+          Object.keys(this.state.probabilityRanges).forEach((rangeClass) => {
+            header.classList.remove(rangeClass);
+          });
+
+          if (range !== "all") {
+            header.classList.add(range);
+            const rangeValues = this.state.probabilityRanges[range];
+            header.textContent = rangeValues.label;
+          } else {
+            header.textContent = "Вероятность";
+          }
+        },
+
+        setupCheckboxHandling() {
+          const checkboxes = document.querySelectorAll(".row-checkbox");
+          const addToControlBtn = document.querySelector(".add-to-control-btn");
+
+          // Make button always active
+          if (addToControlBtn) {
+            addToControlBtn.classList.add("active");
+
+            // Add click handler
+            addToControlBtn.addEventListener("click", () => {
+              // Hide current content (authors table)
+              document.getElementById("authors-content").style.display = "none";
+              document.getElementById("dashboard-content").style.display =
+                "none";
+
+              // Show control content
+              const controlContent = document.getElementById("control-content");
+              if (controlContent) {
+                controlContent.style.display = "block";
+              }
+
+              // Update menu state
+              document
+                .querySelectorAll(".menu-item")
+                .forEach((item) => item.classList.remove("active"));
+              const controlMenuItem =
+                document.getElementById("control-menu-item");
+              if (controlMenuItem) {
+                controlMenuItem.classList.add("active");
+              }
+
+              // Update selected clients list
+              this.updateSelectedClientsList();
+            });
+          }
+
+          checkboxes.forEach((checkbox) => {
+            checkbox.addEventListener("change", (e) => {
+              const row = e.target.closest(".grid-row");
+              if (row) {
+                if (e.target.checked) {
+                  this.state.selectedRows.add(row);
+                } else {
+                  this.state.selectedRows.delete(row);
+                }
+              }
+            });
+          });
+        },
+
+        setupControlButton() {
+          // This method is now handled in setupCheckboxHandling
+        },
+
+        switchToControlView() {
+          const authorsContent = document.getElementById("authors-content");
+          const controlContent = document.getElementById("control-content");
+          const controlMenuItem = document.getElementById("control-menu-item");
+          const dashboardContent = document.getElementById("dashboard-content");
+
+          if (!controlContent) {
+            console.error("Control content not found");
+            return;
+          }
+
+          // Hide all content sections
+          [authorsContent, dashboardContent].forEach((content) => {
+            if (content) content.style.display = "none";
+          });
+
+          // Show control content
+          controlContent.style.display = "block";
+
+          // Update menu state
+          document
+            .querySelectorAll(".menu-item")
+            .forEach((item) => item.classList.remove("active"));
+          if (controlMenuItem) {
+            controlMenuItem.classList.add("active");
+          }
+        },
+
+        updateSelectedClientsList() {
+          const controlContent = document.getElementById("control-content");
+          if (!controlContent) return;
+
+          const monitoringDashboard = controlContent.querySelector(
+            ".monitoring-dashboard"
+          );
+          if (!monitoringDashboard) return;
+
+          // Create selected clients section if it doesn't exist
+          let selectedClientsSection =
+            controlContent.querySelector(".selected-clients");
+          if (!selectedClientsSection) {
+            selectedClientsSection = document.createElement("div");
+            selectedClientsSection.className = "selected-clients";
+            selectedClientsSection.innerHTML = `
+              <h2>Выбранные клиенты</h2>
+              <div class="selected-clients-list"></div>
+            `;
+            monitoringDashboard.appendChild(selectedClientsSection);
+          }
+
+          const selectedClientsList = selectedClientsSection.querySelector(
+            ".selected-clients-list"
+          );
+          if (!selectedClientsList) return;
+
+          // Clear existing list
+          selectedClientsList.innerHTML = "";
+
+          // Add selected clients
+          this.state.selectedRows.forEach((row) => {
+            const clientData = this.extractClientData(row);
+            if (clientData) {
+              const clientElement = this.createClientElement(clientData);
+              selectedClientsList.appendChild(clientElement);
+            }
+          });
+
+          // Clear selection after adding to control
+          this.state.selectedRows.clear();
+          document.querySelectorAll(".row-checkbox").forEach((checkbox) => {
+            checkbox.checked = false;
+          });
+        },
+
+        extractClientData(row) {
+          try {
+            return {
+              id: row.querySelector("div:first-child")?.textContent?.trim(),
+              name: row.querySelector("div:nth-child(2)")?.textContent?.trim(),
+              status: row
+                .querySelector(".status-indicator")
+                ?.textContent?.trim(),
+              probability: row
+                .querySelector(".probability-value")
+                ?.textContent?.trim(),
+            };
+          } catch (error) {
+            console.error("Error extracting client data:", error);
+            return null;
+          }
+        },
+
+        createClientElement(clientData) {
+          const clientElement = document.createElement("div");
+          clientElement.className = "selected-client-item";
+
+          clientElement.innerHTML = `
+            <div class="client-info">
+              <strong>${clientData.id || "N/A"}</strong> - ${
+            clientData.name || "Unknown"
+          }
+            </div>
+            <div class="client-status">
+              <span>Статус: ${clientData.status || "N/A"}</span>
+              <span>Вероятность: ${clientData.probability || "N/A"}</span>
+            </div>
+          `;
+
+          return clientElement;
+        },
+      };
+
+      // Pagination Module
+      const PaginationModule = {
+        init() {
+          this.setupPaginationControls();
+          this.updatePagination();
+        },
+
+        setupPaginationControls() {
+          DOM.pagination.firstBtn.addEventListener("click", () =>
+            this.goToPage(1)
+          );
+          DOM.pagination.prevBtn.addEventListener("click", () =>
+            this.goToPage(state.currentPage - 1)
+          );
+          DOM.pagination.nextBtn.addEventListener("click", () =>
+            this.goToPage(state.currentPage + 1)
+          );
+          DOM.pagination.lastBtn.addEventListener("click", () =>
+            this.goToPage(this.getTotalPages())
+          );
+        },
+
+        goToPage(page) {
+          if (page >= 1 && page <= this.getTotalPages()) {
+            state.currentPage = page;
+            this.updatePagination();
+          }
+        },
+
+        getTotalPages() {
+          return Math.ceil(state.totalItems / state.itemsPerPage);
+        },
+
+        updatePagination() {
+          const totalPages = this.getTotalPages();
+          const startItem = (state.currentPage - 1) * state.itemsPerPage;
+          const endItem = Math.min(
+            startItem + state.itemsPerPage,
+            state.totalItems
+          );
+
+          // Update button states
+          DOM.pagination.firstBtn.disabled = state.currentPage === 1;
+          DOM.pagination.prevBtn.disabled = state.currentPage === 1;
+          DOM.pagination.nextBtn.disabled = state.currentPage === totalPages;
+          DOM.pagination.lastBtn.disabled = state.currentPage === totalPages;
+
+          // Update visible rows
+          this.updateVisibleRows(startItem, endItem);
+
+          // Update pagination numbers
+          this.updatePaginationNumbers(totalPages);
+        },
+
+        updateVisibleRows(startItem, endItem) {
+          DOM.table.rows.forEach((row, index) => {
+            if (index >= startItem && index < endItem) {
+              row.style.display = "";
+            } else {
+              row.style.display = "none";
+            }
+          });
+        },
+
+        updatePaginationNumbers(totalPages) {
+          let numbersHTML = "";
+
+          for (let i = 1; i <= totalPages; i++) {
+            if (
+              i === 1 ||
+              i === totalPages ||
+              (i >= state.currentPage - 1 && i <= state.currentPage + 1)
+            ) {
+              numbersHTML += `<div class="page-number${
+                i === state.currentPage ? " active" : ""
+              }">${i}</div>`;
+            } else if (
+              i === state.currentPage - 2 ||
+              i === state.currentPage + 2
+            ) {
+              numbersHTML += '<div class="page-ellipsis">...</div>';
+            }
+          }
+
+          DOM.pagination.numbers.innerHTML = numbersHTML;
+
+          // Add click handlers to new page numbers
+          document.querySelectorAll(".page-number").forEach((number) => {
+            number.addEventListener("click", () => {
+              this.goToPage(parseInt(number.textContent));
+            });
+          });
+        },
+      };
+
+      // Control Action Module
+      const ControlActionModule = {
+        selectedRows: new Set(),
+
+        init() {
+          this.button = document.getElementById("controlActionBtn");
+          this.bindEvents();
+          console.log("ControlActionModule initialized");
+        },
+
+        bindEvents() {
+          // Bind checkbox events
+          const checkboxes = document.querySelectorAll(".row-checkbox");
+          checkboxes.forEach((checkbox) => {
+            checkbox.addEventListener("change", (e) =>
+              this.handleCheckboxChange(e)
+            );
+          });
+
+          // Add click handler for controlActionBtn
+          this.button.addEventListener("click", () =>
+            this.handleControlAction()
+          );
+
+          console.log("Events bound to", checkboxes.length, "checkboxes");
+        },
+
+        handleCheckboxChange(event) {
+          const row = event.target.closest(".grid-row");
+          if (!row) return;
+
+          if (event.target.checked) {
+            this.selectedRows.add(row);
+          } else {
+            this.selectedRows.delete(row);
+          }
+
+          this.updateButtonState();
+          console.log("Selected rows:", this.selectedRows.size);
+        },
+
+        updateButtonState() {
+          const buttonText = this.button.querySelector("span");
+          const hasSelectedRows = this.selectedRows.size > 0;
+
+          this.button.disabled = !hasSelectedRows;
+
+          if (buttonText) {
+            buttonText.textContent = hasSelectedRows
+              ? `Добавить в контроль (${this.selectedRows.size})`
+              : "Добавить в контроль";
+          }
+        },
+
+        handleControlAction() {
+          console.log("Control action triggered");
+          if (this.selectedRows.size === 0) {
+            console.log("No rows selected");
+            return;
+          }
+
+          // Toggle main-content sections
+          const dashboardContent = document.getElementById("dashboard-content");
+          const authorsContent = document.getElementById("authors-content");
+          const controlContent = document.getElementById("control-content");
+
+          // Hide all sections first
+          if (dashboardContent) dashboardContent.style.display = "none";
+          if (authorsContent) authorsContent.style.display = "none";
+          if (controlContent) controlContent.style.display = "none";
+
+          // Show the control section
+          if (controlContent) {
+            controlContent.style.display = "block";
+          }
+
+          // Update menu items - remove active class from all and add to control
+          document.querySelectorAll(".menu-item").forEach((item) => {
+            item.classList.remove("active");
+          });
+          const controlMenuItem = document.getElementById("control-menu-item");
+          if (controlMenuItem) {
+            controlMenuItem.classList.add("active");
+          }
+
+          this.processSelectedRows();
+          this.resetSelection();
+        },
+
+        switchToControlView() {
+          console.log("Switching to control view");
+
+          // Hide other views
+          document.getElementById("dashboard-content").style.display = "none";
+          document.getElementById("authors-content").style.display = "none";
+
+          // Show control view
+          const controlContent = document.getElementById("control-content");
+          if (controlContent) {
+            controlContent.style.display = "block";
+          }
+
+          // Update menu state
+          document.querySelectorAll(".menu-item").forEach((item) => {
+            item.classList.remove("active");
+          });
+
+          const controlMenuItem = document.getElementById("control-menu-item");
+          if (controlMenuItem) {
+            controlMenuItem.classList.add("active");
+          }
+        },
+
+        processSelectedRows() {
+          console.log("Processing selected rows");
+          const controlContent = document.getElementById("control-content");
+          if (!controlContent) return;
+
+          const monitoringDashboard = controlContent.querySelector(
+            ".monitoring-dashboard"
+          );
+          if (!monitoringDashboard) return;
+
+          let selectedClientsSection =
+            monitoringDashboard.querySelector(".selected-clients");
+          if (!selectedClientsSection) {
+            selectedClientsSection = document.createElement("div");
+            selectedClientsSection.className = "selected-clients";
+            selectedClientsSection.innerHTML = `
+              <h2>Выбранные клиенты</h2>
+              <div class="selected-clients-list"></div>
+            `;
+            monitoringDashboard.appendChild(selectedClientsSection);
+          }
+
+          const listContainer = selectedClientsSection.querySelector(
+            ".selected-clients-list"
+          );
+          if (!listContainer) return;
+
+          // Clear existing list
+          listContainer.innerHTML = "";
+
+          // Add selected clients
+          this.selectedRows.forEach((row) => {
+            const clientData = {
+              id: row.querySelector("div:first-child")?.textContent?.trim(),
+              name: row.querySelector("div:nth-child(2)")?.textContent?.trim(),
+              status: row
+                .querySelector(".status-indicator")
+                ?.textContent?.trim(),
+              probability: row
+                .querySelector(".probability-value")
+                ?.textContent?.trim(),
+            };
+
+            const clientElement = document.createElement("div");
+            clientElement.className = "selected-client-item";
+            clientElement.innerHTML = `
+              <div class="client-info">
+                <strong>${clientData.id || "N/A"}</strong> - ${
+              clientData.name || "Unknown"
+            }
+              </div>
+              <div class="client-status">
+                <span>Статус: ${clientData.status || "N/A"}</span>
+                <span>Вероятность: ${clientData.probability || "N/A"}</span>
+              </div>
+            `;
+
+            listContainer.appendChild(clientElement);
+          });
+        },
+
+        resetSelection() {
+          console.log("Resetting selection");
+          this.selectedRows.clear();
+
+          document.querySelectorAll(".row-checkbox").forEach((checkbox) => {
+            checkbox.checked = false;
+          });
+
+          this.updateButtonState();
+        },
+      };
+
+      // Initialize all modules
+      document.addEventListener("DOMContentLoaded", () => {
+        FileUploadModule.init();
+        NavigationModule.init();
+        TableFilterModule.init();
+        PaginationModule.init();
+        ControlActionModule.init(); // Initialize the new control module
+      });
+    </script>
+    <script>
+      // API Base URL
+      const API_BASE_URL = "https://api.kilowattt.ru";
+
+      // API Functions
+      async function createReport() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/v1/report/create`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          return data.report_id;
+        } catch (error) {
+          console.error("Error creating report:", error);
+          throw error;
+        }
+      }
+
+      async function uploadFileToReport(reportId, file) {
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const response = await fetch(
+            `${API_BASE_URL}/v1/report/${reportId}/upload`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error("Error uploading file:", error);
+          throw error;
+        }
+      }
+
+      async function checkReport(reportId) {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/v1/report/${reportId}/check`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error("Error checking report:", error);
+          throw error;
+        }
+      }
+
+      async function getClients(offset = 0, limit = 10) {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/api/v1/client/list?offset=${offset}&limit=${limit}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error("Error fetching clients:", error);
+          throw error;
+        }
+      }
+
+      // Example usage:
+      document.addEventListener("DOMContentLoaded", async () => {
+        try {
+          // Create report when page loads
+          const reportId = await createReport();
+          console.log("Report created with ID:", reportId);
+
+          // Example of getting clients
+          const clientsData = await getClients(0, 10);
+          console.log("Clients data:", clientsData);
+        } catch (error) {
+          console.error("Error during initialization:", error);
+        }
+      });
+    </script>
+  </body>
+</html>
