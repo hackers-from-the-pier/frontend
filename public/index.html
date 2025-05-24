@@ -23,7 +23,7 @@
 
       /* Sidebar */
       .sidebar {
-        width: 250px;1ч
+        width: 250px;
         min-width: 250px;
         max-width: 250px;
         background: #111c44;
@@ -4149,9 +4149,15 @@
           }
 
           const data = await response.json();
+          // Используем поле id вместо report_id
+          const reportId = data.id;
+          if (!reportId) {
+            throw new Error("Report ID not received from server");
+          }
+
           // Сохраняем ID отчета в localStorage
-          localStorage.setItem("currentReportId", data.report_id);
-          return data.report_id;
+          localStorage.setItem("currentReportId", reportId);
+          return reportId;
         } catch (error) {
           console.error("Error creating report:", error);
           throw error;
