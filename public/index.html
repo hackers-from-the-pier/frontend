@@ -133,7 +133,7 @@
       /* Иконка поиска */
       .search-icon {
         position: absolute;
-        left: 16px;
+        right: 26px;
         top: 50%;
         transform: translateY(-50%);
         width: 16px;
@@ -465,20 +465,6 @@
         scroll-behavior: smooth;
       }
 
-      .authors-header {
-        margin-bottom: 30px;
-        top: 0;
-        background: #111c44;
-        padding-top: 10px;
-      }
-
-      .authors-header h1 {
-        font-size: 24px;
-        margin: 0;
-        color: #fff;
-      }
-
-      /* Стили для таблицы */
       .authors-table {
         display: block;
         overflow-x: auto;
@@ -604,7 +590,6 @@
         position: relative;
         transition: all 0.2s ease;
         background: rgb(76 35 255 / 74%);
-        border-radius: 8px;
         padding: 8px;
       }
 
@@ -1529,7 +1514,6 @@
         position: relative;
         transition: all 0.2s ease;
         padding: 8px 12px;
-        border-radius: 8px;
         background: rgba(67, 24, 255, 0.1);
       }
 
@@ -1672,7 +1656,6 @@
         position: relative;
         transition: all 0.2s ease;
         padding: 8px 12px;
-        border-radius: 8px;
         background: rgba(67, 24, 255, 0.1);
       }
 
@@ -1802,15 +1785,6 @@
         color: #8f9bba;
       }
 
-      .search-icon {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #8f9bba;
-        pointer-events: none;
-      }
-
       .search-container:hover .search-input {
         border-color: rgba(67, 24, 255, 0.3);
       }
@@ -1928,6 +1902,9 @@
         padding: 8px;
         box-sizing: border-box;
         background: #1a2754;
+      }
+
+      .second__search {
       }
 
       .search-field {
@@ -2108,14 +2085,6 @@
 
       .search-field::placeholder {
         color: #8f9bba;
-      }
-
-      .search-icon {
-        position: absolute;
-        right: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        pointer-events: none;
       }
     </style>
   </head>
@@ -2675,7 +2644,7 @@
           <div class="authors-table">
             <div class="grid-header">
               <div>ID</div>
-              <div class="search-field-container">
+              <div class="search-field-container second__search">
                 <input
                   type="text"
                   class="search-field"
