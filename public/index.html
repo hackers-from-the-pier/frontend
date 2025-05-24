@@ -517,6 +517,9 @@
           120px /* Яндекс карта */
           120px /* 2ГИС */
           120px /* Авито */
+          120px /* Письмо */
+          120px /* отправить */
+          120px /* почта */
           100px; /* Действия */
         min-width: max-content;
         margin: 0 -30px;
@@ -2059,6 +2062,61 @@
         padding: 8px 12px;
         line-height: 1.4;
       }
+
+      .btn-link {
+        background: none;
+        border: none;
+        color: #4318ff;
+        cursor: pointer;
+        padding: 5px 10px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        border-radius: 4px;
+      }
+
+      .btn-link:hover {
+        background: rgba(67, 24, 255, 0.1);
+        color: #fff;
+      }
+
+      .btn-link:active {
+        transform: translateY(1px);
+      }
+
+      /* Стили для поиска */
+      .search-field-container {
+        position: relative;
+        width: 100%;
+      }
+
+      .search-field {
+        width: 100%;
+        padding: 8px 32px 8px 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      .search-field:focus {
+        border-color: #4318ff;
+        background: rgba(67, 24, 255, 0.1);
+      }
+
+      .search-field::placeholder {
+        color: #8f9bba;
+      }
+
+      .search-icon {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
     </style>
   </head>
   <body>
@@ -2641,7 +2699,29 @@
                 </svg>
               </div>
               <div>Контакты</div>
-              <div>Адрес объекта</div>
+              <div class="search-field-container">
+                <input
+                  type="text"
+                  class="search-field"
+                  placeholder="Поиск по адресу..."
+                />
+                <svg
+                  class="search-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
+                    stroke="#8F9BBA"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
               <div>Тип клиента</div>
               <div>Тип строения</div>
               <div>Кол-во комнат</div>
@@ -2659,6 +2739,9 @@
               <div>Яндекс карта</div>
               <div>2ГИС</div>
               <div>Авито</div>
+              <div>Письмо</div>
+              <div>отправить</div>
+              <div>почта</div>
               <div class="actions-header">
                 <span>Действия</span>
               </div>
@@ -2702,6 +2785,15 @@
                   target="_blank"
                   >Авито</a
                 >
+              </div>
+              <div>
+                <button class="btn-link">Письмо</button>
+              </div>
+              <div>
+                <button class="btn-link">отправить</button>
+              </div>
+              <div>
+                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -2753,6 +2845,15 @@
                 >
               </div>
               <div>
+                <button class="btn-link">Письмо</button>
+              </div>
+              <div>
+                <button class="btn-link">отправить</button>
+              </div>
+              <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <label class="custom-checkbox">
                   <input type="checkbox" class="row-checkbox" />
                   <span class="checkmark"></span>
@@ -2798,6 +2899,15 @@
                   target="_blank"
                   >Авито</a
                 >
+              </div>
+              <div>
+                <button class="btn-link">Письмо</button>
+              </div>
+              <div>
+                <button class="btn-link">отправить</button>
+              </div>
+              <div>
+                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -2849,6 +2959,15 @@
                 >
               </div>
               <div>
+                <button class="btn-link">Письмо</button>
+              </div>
+              <div>
+                <button class="btn-link">отправить</button>
+              </div>
+              <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <label class="custom-checkbox">
                   <input type="checkbox" class="row-checkbox" />
                   <span class="checkmark"></span>
@@ -2895,6 +3014,15 @@
                   target="_blank"
                   >Авито</a
                 >
+              </div>
+              <div>
+                <button class="btn-link">Письмо</button>
+              </div>
+              <div>
+                <button class="btn-link">отправить</button>
+              </div>
+              <div>
+                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -2945,6 +3073,15 @@
                 >
               </div>
               <div>
+                <button class="btn-link">Письмо</button>
+              </div>
+              <div>
+                <button class="btn-link">отправить</button>
+              </div>
+              <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <label class="custom-checkbox">
                   <input type="checkbox" class="row-checkbox" />
                   <span class="checkmark"></span>
@@ -2991,6 +3128,15 @@
                   target="_blank"
                   >Авито</a
                 >
+              </div>
+              <div>
+                <button class="btn-link">Письмо</button>
+              </div>
+              <div>
+                <button class="btn-link">отправить</button>
+              </div>
+              <div>
+                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -3041,6 +3187,15 @@
                 >
               </div>
               <div>
+                <button class="btn-link">Письмо</button>
+              </div>
+              <div>
+                <button class="btn-link">отправить</button>
+              </div>
+              <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <label class="custom-checkbox">
                   <input type="checkbox" class="row-checkbox" />
                   <span class="checkmark"></span>
@@ -3089,6 +3244,15 @@
                   target="_blank"
                   >Авито</a
                 >
+              </div>
+              <div>
+                <button class="btn-link">Письмо</button>
+              </div>
+              <div>
+                <button class="btn-link">отправить</button>
+              </div>
+              <div>
+                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
