@@ -23,7 +23,7 @@
 
       /* Sidebar */
       .sidebar {
-        width: 250px;
+        width: 250px;1ч
         min-width: 250px;
         max-width: 250px;
         background: #111c44;
@@ -2473,17 +2473,17 @@
               // Step 1: Create report
               statusMessage.textContent = "Создание отчета...";
               progressFill.style.width = "20%";
-              currentReportId = await createReport();
+              const reportId = await createReport();
 
               // Step 2: Upload file
               statusMessage.textContent = "Загрузка файла...";
               progressFill.style.width = "60%";
-              await uploadFileToReport(currentReportId, file);
+              await uploadFileToReport(reportId, file);
 
               // Step 3: Start check
               statusMessage.textContent = "Начало проверки...";
               progressFill.style.width = "90%";
-              await checkReport(currentReportId);
+              await checkReport(reportId);
 
               // Complete
               statusMessage.textContent =
@@ -4149,6 +4149,8 @@
           }
 
           const data = await response.json();
+          // Сохраняем ID отчета в localStorage
+          localStorage.setItem("currentReportId", data.report_id);
           return data.report_id;
         } catch (error) {
           console.error("Error creating report:", error);
@@ -4158,11 +4160,19 @@
 
       async function uploadFileToReport(reportId, file) {
         try {
+          // Если reportId не передан, пытаемся получить его из localStorage
+          const actualReportId =
+            reportId || localStorage.getItem("currentReportId");
+
+          if (!actualReportId) {
+            throw new Error("Report ID not found");
+          }
+
           const formData = new FormData();
           formData.append("file", file);
 
           const response = await fetch(
-            `${API_BASE_URL}/v1/report/${reportId}/upload`,
+            `${API_BASE_URL}/v1/report/${actualReportId}/upload`,
             {
               method: "POST",
               body: formData,
@@ -4182,8 +4192,16 @@
 
       async function checkReport(reportId) {
         try {
+          // Если reportId не передан, пытаемся получить его из localStorage
+          const actualReportId =
+            reportId || localStorage.getItem("currentReportId");
+
+          if (!actualReportId) {
+            throw new Error("Report ID not found");
+          }
+
           const response = await fetch(
-            `${API_BASE_URL}/v1/report/${reportId}/check`,
+            `${API_BASE_URL}/v1/report/${actualReportId}/check`,
             {
               method: "POST",
               headers: {
