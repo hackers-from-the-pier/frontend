@@ -1,0 +1,16 @@
+{
+  "name": "kilowatt-notification-service",
+  "version": "1.0.0",
+  "description": "Сервис для генерации PDF-уведомлений о подозрительной активности в энергопотреблении",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "pdfkit": "^0.13.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
