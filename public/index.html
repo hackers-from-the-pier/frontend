@@ -449,7 +449,7 @@
 
       .anomaly-btn {
         position: absolute;
-        bottom: 0px;
+        bottom: -40px;
         right: 30px;
         background: #4318ff;
         color: white;
@@ -3206,36 +3206,32 @@
             </div>
             <div class="stats-cards">
               <div class="stat-card">
-                <h3>Battery Health</h3>
-                <p class="stat-value">76%</p>
+                <h3>Сколько коммерции</h3>
+                <p class="stat-value">500</p>
               </div>
               <div class="stat-card">
-                <h3>Efficiency</h3>
-                <p class="stat-value">+20%</p>
+                <h3>Сколько некоммерции</h3>
+                <p class="stat-value">500</p>
               </div>
               <div class="stat-card">
-                <h3>Consumption</h3>
-                <p class="stat-value">163W/km</p>
+                <h3>Суммарно электричества</h3>
+                <p class="stat-value">50 000 кВт⋅ч</p>
               </div>
               <div class="stat-card">
-                <h3>This Week</h3>
-                <p class="stat-value">1.342km</p>
+                <h3>Суммарно площади</h3>
+                <p class="stat-value">100.342km</p>
               </div>
               <div class="stat-card">
-                <h3>Energy Usage</h3>
-                <p class="stat-value">2.4kWh</p>
+                <h3>суммарно количества человек</h3>
+                <p class="stat-value">5 000 000</p>
               </div>
               <div class="stat-card">
-                <h3>Peak Power</h3>
+                <h3>Пустых полей</h3>
                 <p class="stat-value">3.8kW</p>
               </div>
               <div class="stat-card">
-                <h3>Daily Average</h3>
+                <h3>Сколько городов</h3>
                 <p class="stat-value">192W</p>
-              </div>
-              <div class="stat-card">
-                <h3>Total Distance</h3>
-                <p class="stat-value">4,521km</p>
               </div>
             </div>
           </div>
@@ -4117,14 +4113,60 @@
 
       // Navigation Module
       const NavigationModule = {
+        isLoading: true,
+
         init() {
           this.setupMenuNavigation();
           this.setupAnomalyButton();
+          this.updateNavigationState();
+        },
+
+        setLoading(loading) {
+          this.isLoading = loading;
+          this.updateNavigationState();
+        },
+
+        updateNavigationState() {
+          const menuItems = DOM.navigation.menuItems;
+          const anomalyBtn = DOM.navigation.anomalyBtn;
+
+          // Находим пункт меню "База клиентов" (индекс 1)
+          const clientsMenuItem = menuItems[1];
+
+          if (this.isLoading) {
+            // Блокируем только пункт "База клиентов"
+            if (
+              clientsMenuItem &&
+              !clientsMenuItem.classList.contains("active")
+            ) {
+              clientsMenuItem.style.pointerEvents = "none";
+              clientsMenuItem.style.opacity = "0.5";
+            }
+            // Блокируем кнопку "Перейти к аномалиям"
+            if (anomalyBtn) {
+              anomalyBtn.style.pointerEvents = "none";
+              anomalyBtn.style.opacity = "0.5";
+            }
+          } else {
+            // Разблокируем заблокированные элементы
+            if (clientsMenuItem) {
+              clientsMenuItem.style.pointerEvents = "";
+              clientsMenuItem.style.opacity = "";
+            }
+            if (anomalyBtn) {
+              anomalyBtn.style.pointerEvents = "";
+              anomalyBtn.style.opacity = "";
+            }
+          }
         },
 
         setupMenuNavigation() {
           DOM.navigation.menuItems.forEach((item, index) => {
             item.addEventListener("click", () => {
+              // Проверяем, является ли это пунктом "База клиентов"
+              if (index === 1 && this.isLoading) {
+                return; // Блокируем только для "База клиентов"
+              }
               this.updateActiveMenu(item);
               this.showContent(index);
             });
@@ -4132,10 +4174,12 @@
         },
 
         setupAnomalyButton() {
-          DOM.navigation.anomalyBtn.addEventListener("click", () => {
-            DOM.content.dashboard.style.display = "none";
-            DOM.content.authors.style.display = "block";
-            this.updateActiveMenu(DOM.navigation.menuItems[1]);
+          DOM.navigation.anomalyBtn?.addEventListener("click", () => {
+            if (!this.isLoading) {
+              DOM.content.dashboard.style.display = "none";
+              DOM.content.authors.style.display = "block";
+              this.updateActiveMenu(DOM.navigation.menuItems[1]);
+            }
           });
         },
 
@@ -5101,6 +5145,7 @@
       });
 
       async function loadClientData(page = 1, limit = 10) {
+        NavigationModule.setLoading(true);
         try {
           const offset = (page - 1) * limit;
           const response = await fetch(
@@ -5141,6 +5186,7 @@
 
           renderClientsTable(data.clients);
           updatePagination(data.current_page, data.total_pages);
+          NavigationModule.setLoading(false);
         } catch (error) {
           console.error("Детали ошибки:", {
             message: error.message,
@@ -5150,6 +5196,7 @@
               response?.headers && Array.from(response.headers.entries()),
           });
           alert(`Произошла ошибка при загрузке данных: ${error.message}`);
+          NavigationModule.setLoading(false);
         }
       }
 
