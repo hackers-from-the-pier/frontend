@@ -4990,7 +4990,7 @@
           row.innerHTML = `
             <div>${client.id || ""}</div>
             <div class="fio-cell">${client.name || "Не указано"}</div>
-            <div>${formatContacts(client.phone, client.email)}</div>
+            <div>${formatContacts(client.phone)}</div>
             <div>${client.address || ""}</div>
             <div>${
               client.is_commercial ? "Коммерческий" : "Некоммерческий"
