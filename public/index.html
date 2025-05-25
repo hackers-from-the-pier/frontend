@@ -2129,14 +2129,17 @@
       }
 
       /* Подсветка для карты, 2ГИС, Авито */
-      .authors-table .grid-row > div:nth-child(n+19):nth-child(-n+21) a {
+      .authors-table .grid-row > div:nth-child(n + 19):nth-child(-n + 21) a {
         background: rgba(46, 213, 115, 0.15);
         color: #2ed573;
         border: 1px solid rgba(46, 213, 115, 0.3);
         box-shadow: 0 2px 6px rgba(46, 213, 115, 0.1);
       }
 
-      .authors-table .grid-row > div:nth-child(n+19):nth-child(-n+21) a:hover {
+      .authors-table
+        .grid-row
+        > div:nth-child(n + 19):nth-child(-n + 21)
+        a:hover {
         background: rgba(46, 213, 115, 0.25);
         border-color: rgba(46, 213, 115, 0.4);
         box-shadow: 0 4px 12px rgba(46, 213, 115, 0.2);
@@ -2332,39 +2335,57 @@
       }
 
       /* Стили для ссылок карты, 2ГИС и Авито в зависимости от статуса */
-      .authors-table .grid-row:has(.status-normal) > div:nth-child(n+19):nth-child(-n+21) a {
+      .authors-table
+        .grid-row:has(.status-normal)
+        > div:nth-child(n + 19):nth-child(-n + 21)
+        a {
         background: rgba(46, 213, 115, 0.15);
         color: #2ed573;
         border: 1px solid rgba(46, 213, 115, 0.3);
       }
 
-      .authors-table .grid-row:has(.status-normal) > div:nth-child(n+19):nth-child(-n+21) a:hover {
+      .authors-table
+        .grid-row:has(.status-normal)
+        > div:nth-child(n + 19):nth-child(-n + 21)
+        a:hover {
         background: rgba(46, 213, 115, 0.25);
         color: #2ed573;
         box-shadow: 0 4px 12px rgba(46, 213, 115, 0.2);
         transform: translateY(-1px);
       }
 
-      .authors-table .grid-row:has(.status-warning) > div:nth-child(n+19):nth-child(-n+21) a {
+      .authors-table
+        .grid-row:has(.status-warning)
+        > div:nth-child(n + 19):nth-child(-n + 21)
+        a {
         background: rgba(255, 199, 0, 0.15);
         color: #ffc700;
         border: 1px solid rgba(255, 199, 0, 0.3);
       }
 
-      .authors-table .grid-row:has(.status-warning) > div:nth-child(n+19):nth-child(-n+21) a:hover {
+      .authors-table
+        .grid-row:has(.status-warning)
+        > div:nth-child(n + 19):nth-child(-n + 21)
+        a:hover {
         background: rgba(255, 199, 0, 0.25);
         color: #ffc700;
         box-shadow: 0 4px 12px rgba(255, 199, 0, 0.2);
         transform: translateY(-1px);
       }
 
-      .authors-table .grid-row:has(.status-danger) > div:nth-child(n+19):nth-child(-n+21) a {
+      .authors-table
+        .grid-row:has(.status-danger)
+        > div:nth-child(n + 19):nth-child(-n + 21)
+        a {
         background: rgba(255, 71, 87, 0.15);
         color: #ff4757;
         border: 1px solid rgba(255, 71, 87, 0.3);
       }
 
-      .authors-table .grid-row:has(.status-danger) > div:nth-child(n+19):nth-child(-n+21) a:hover {
+      .authors-table
+        .grid-row:has(.status-danger)
+        > div:nth-child(n + 19):nth-child(-n + 21)
+        a:hover {
         background: rgba(255, 71, 87, 0.25);
         color: #ff4757;
         box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
@@ -2372,7 +2393,7 @@
       }
 
       /* Общие стили для ссылок */
-      .authors-table .grid-row > div:nth-child(n+19):nth-child(-n+21) a {
+      .authors-table .grid-row > div:nth-child(n + 19):nth-child(-n + 21) a {
         text-decoration: none;
         padding: 6px 12px;
         border-radius: 6px;
@@ -2394,15 +2415,24 @@
       }
 
       /* Цвета для кнопки отправить в зависимости от статуса */
-      .authors-table .grid-row:has(.status-normal) > div:nth-child(24) .btn-link {
+      .authors-table
+        .grid-row:has(.status-normal)
+        > div:nth-child(24)
+        .btn-link {
         color: #2ed573;
       }
 
-      .authors-table .grid-row:has(.status-warning) > div:nth-child(24) .btn-link {
+      .authors-table
+        .grid-row:has(.status-warning)
+        > div:nth-child(24)
+        .btn-link {
         color: #ffc700;
       }
 
-      .authors-table .grid-row:has(.status-danger) > div:nth-child(24) .btn-link {
+      .authors-table
+        .grid-row:has(.status-danger)
+        > div:nth-child(24)
+        .btn-link {
         color: #ff4757;
       }
 
@@ -2430,18 +2460,42 @@
         content: "-";
       }
 
-      .authors-table .grid-row:has(.status-normal) > div:nth-child(22) .btn-link,
-      .authors-table .grid-row:has(.status-normal) > div:nth-child(23) .btn-link,
-      .authors-table .grid-row:has(.status-normal) > div:nth-child(24) .btn-link,
-      .authors-table .grid-row:has(.status-warning) > div:nth-child(22) .btn-link,
-      .authors-table .grid-row:has(.status-warning) > div:nth-child(23) .btn-link,
-      .authors-table .grid-row:has(.status-warning) > div:nth-child(24) .btn-link {
+      .authors-table
+        .grid-row:has(.status-normal)
+        > div:nth-child(22)
+        .btn-link,
+      .authors-table
+        .grid-row:has(.status-normal)
+        > div:nth-child(23)
+        .btn-link,
+      .authors-table
+        .grid-row:has(.status-normal)
+        > div:nth-child(24)
+        .btn-link,
+      .authors-table
+        .grid-row:has(.status-warning)
+        > div:nth-child(22)
+        .btn-link,
+      .authors-table
+        .grid-row:has(.status-warning)
+        > div:nth-child(23)
+        .btn-link,
+      .authors-table
+        .grid-row:has(.status-warning)
+        > div:nth-child(24)
+        .btn-link {
         display: none;
       }
 
       /* Стили для кнопок в строках с аномальным статусом */
-      .authors-table .grid-row:has(.status-danger) > div:nth-child(22) .btn-link,
-      .authors-table .grid-row:has(.status-danger) > div:nth-child(23) .btn-link {
+      .authors-table
+        .grid-row:has(.status-danger)
+        > div:nth-child(22)
+        .btn-link,
+      .authors-table
+        .grid-row:has(.status-danger)
+        > div:nth-child(23)
+        .btn-link {
         background: rgba(255, 71, 87, 0.15);
         color: #ff4757;
         border: 1px solid rgba(255, 71, 87, 0.3);
@@ -2451,8 +2505,14 @@
         transition: all 0.2s ease;
       }
 
-      .authors-table .grid-row:has(.status-danger) > div:nth-child(22) .btn-link:hover,
-      .authors-table .grid-row:has(.status-danger) > div:nth-child(23) .btn-link:hover {
+      .authors-table
+        .grid-row:has(.status-danger)
+        > div:nth-child(22)
+        .btn-link:hover,
+      .authors-table
+        .grid-row:has(.status-danger)
+        > div:nth-child(23)
+        .btn-link:hover {
         background: rgba(255, 71, 87, 0.25);
         border-color: rgba(255, 71, 87, 0.4);
         box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
@@ -2460,7 +2520,10 @@
       }
 
       /* Стиль для кнопки отправить в строках с аномальным статусом */
-      .authors-table .grid-row:has(.status-danger) > div:nth-child(24) .btn-link {
+      .authors-table
+        .grid-row:has(.status-danger)
+        > div:nth-child(24)
+        .btn-link {
         background: none;
         border: none;
         box-shadow: none;
@@ -2470,7 +2533,10 @@
         transition: all 0.2s ease;
       }
 
-      .authors-table .grid-row:has(.status-danger) > div:nth-child(24) .btn-link:hover {
+      .authors-table
+        .grid-row:has(.status-danger)
+        > div:nth-child(24)
+        .btn-link:hover {
         transform: translateY(-1px);
         opacity: 0.8;
       }
@@ -3641,12 +3707,16 @@
             <div class="pagination">
               <button class="pagination-arrow" data-action="first">
                 <svg viewBox="0 0 24 24">
-                  <path d="M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6zM6 6h2v12H6z"/>
+                  <path
+                    d="M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6zM6 6h2v12H6z"
+                  />
                 </svg>
               </button>
               <button class="pagination-arrow" data-action="prev">
                 <svg viewBox="0 0 24 24">
-                  <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+                  <path
+                    d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"
+                  />
                 </svg>
               </button>
               <div class="pagination-numbers">
@@ -3658,18 +3728,29 @@
               </div>
               <button class="pagination-arrow" data-action="next">
                 <svg viewBox="0 0 24 24">
-                  <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                  <path
+                    d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                  />
                 </svg>
               </button>
               <button class="pagination-arrow" data-action="last">
                 <svg viewBox="0 0 24 24">
-                  <path d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6zM16 6h2v12h-2z"/>
+                  <path
+                    d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6zM16 6h2v12h-2z"
+                  />
                 </svg>
               </button>
             </div>
-            <button id="controlActionBtn" onclick="ControlActionModule.handleControlAction()">
+            <button
+              id="controlActionBtn"
+              onclick="ControlActionModule.handleControlAction()"
+            >
               <svg viewBox="0 0 24 24">
-                <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </svg>
               <span>Сформировать отчет</span>
             </button>
@@ -4619,6 +4700,32 @@
 
           this.updateButtonState();
         },
+
+        async handleControlAction() {
+          try {
+            const response = await fetch(
+              "https://api.kilowattt.ru/v1/verify/suspicious-clients-pdf"
+            );
+            if (!response.ok) {
+              throw new Error("Ошибка при получении PDF файла");
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "suspicious_clients.pdf";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          } catch (error) {
+            console.error("Ошибка при скачивании файла:", error);
+            alert(
+              "Произошла ошибка при скачивании файла. Пожалуйста, попробуйте позже."
+            );
+          }
+        },
       };
 
       // Initialize all modules
@@ -4816,23 +4923,23 @@
             </div>
             <div>
               ${
-                fraudStatus.class === 'danger'
-                ? '<button class="btn-link">почта</button>'
-                : '-'
+                fraudStatus.class === "danger"
+                  ? '<button class="btn-link">почта</button>'
+                  : "-"
               }
             </div>
             <div>
               ${
-                fraudStatus.class === 'danger'
-                ? '<button class="btn-link">Письмо</button>'
-                : '-'
+                fraudStatus.class === "danger"
+                  ? '<button class="btn-link">Письмо</button>'
+                  : "-"
               }
             </div>
             <div>
               ${
-                fraudStatus.class === 'danger'
-                ? '<button class="btn-link">отправить</button>'
-                : '-'
+                fraudStatus.class === "danger"
+                  ? '<button class="btn-link">отправить</button>'
+                  : "-"
               }
             </div>
             <div>
@@ -4968,10 +5075,6 @@
           );
         });
       }
-    </script>
-  </body>
-</html>
-
     </script>
   </body>
 </html>
