@@ -503,9 +503,9 @@
           120px /* Яндекс карта */
           120px /* 2ГИС */
           120px /* Авито */
+          120px /* почта */
           120px /* Письмо */
           120px /* отправить */
-          120px /* почта */
           100px; /* Действия */
         min-width: max-content;
         margin: 0 -30px;
@@ -607,7 +607,7 @@
 
       /* ФИО, Контакты, Адрес, Тип клиента, Тип строения - по левому краю */
       .authors-table .grid-row > div:nth-child(-n + 6) {
-        justify-content: flex-start;
+        justify-content: center;
         text-align: left;
       }
 
@@ -635,7 +635,7 @@
       /* Стили для контактов */
       .authors-table .grid-row > div:nth-child(3) {
         flex-direction: column;
-        align-items: flex-start;
+        justify-content: center;
         gap: 4px;
         font-size: 14px;
         white-space: normal;
@@ -2107,6 +2107,429 @@
       .search-field::placeholder {
         color: #8f9bba;
       }
+
+      /* Стили для кнопок действий */
+      .authors-table .grid-row > div .btn-link {
+        color: #4318ff;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        background: rgba(67, 24, 255, 0.1);
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+
+      .authors-table .grid-row > div .btn-link:hover {
+        background: rgba(67, 24, 255, 0.2);
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(67, 24, 255, 0.15);
+      }
+
+      /* Подсветка для карты, 2ГИС, Авито */
+      .authors-table .grid-row > div:nth-child(n+19):nth-child(-n+21) a {
+        background: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+        border: 1px solid rgba(46, 213, 115, 0.3);
+        box-shadow: 0 2px 6px rgba(46, 213, 115, 0.1);
+      }
+
+      .authors-table .grid-row > div:nth-child(n+19):nth-child(-n+21) a:hover {
+        background: rgba(46, 213, 115, 0.25);
+        border-color: rgba(46, 213, 115, 0.4);
+        box-shadow: 0 4px 12px rgba(46, 213, 115, 0.2);
+        transform: translateY(-1px);
+      }
+
+      /* Подсветка для почты */
+      .authors-table .grid-row > div:nth-child(22) .btn-link {
+        background: rgba(255, 199, 0, 0.15);
+        color: #ffc700;
+        border: 1px solid rgba(255, 199, 0, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 199, 0, 0.1);
+      }
+
+      .authors-table .grid-row > div:nth-child(22) .btn-link:hover {
+        background: rgba(255, 199, 0, 0.25);
+        border-color: rgba(255, 199, 0, 0.4);
+        box-shadow: 0 4px 12px rgba(255, 199, 0, 0.2);
+        transform: translateY(-1px);
+      }
+
+      /* Подсветка для письма */
+      .authors-table .grid-row > div:nth-child(23) .btn-link {
+        background: rgba(255, 71, 87, 0.15);
+        color: #ff4757;
+        border: 1px solid rgba(255, 71, 87, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 71, 87, 0.1);
+      }
+
+      .authors-table .grid-row > div:nth-child(23) .btn-link:hover {
+        background: rgba(255, 71, 87, 0.25);
+        border-color: rgba(255, 71, 87, 0.4);
+        box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+        transform: translateY(-1px);
+      }
+
+      /* Общие стили для всех кнопок */
+      .authors-table .grid-row > div a,
+      .authors-table .grid-row > div .btn-link {
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      /* Чекбоксы */
+      .custom-checkbox {
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .custom-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+
+      .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background: rgba(67, 24, 255, 0.1);
+        border: 2px solid rgba(67, 24, 255, 0.5);
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .custom-checkbox:hover .checkmark {
+        background: rgba(67, 24, 255, 0.2);
+      }
+
+      .custom-checkbox input:checked ~ .checkmark {
+        background-color: #4318ff;
+        border-color: #4318ff;
+      }
+
+      .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 6px;
+        top: 2px;
+        width: 4px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+
+      .custom-checkbox input:checked ~ .checkmark:after {
+        display: block;
+      }
+
+      /* Стили для кнопок в зависимости от статуса строки */
+      .authors-table .grid-row:has(.status-normal) > div a,
+      .authors-table .grid-row:has(.status-normal) > div .btn-link {
+        background: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+        border: 1px solid rgba(46, 213, 115, 0.3);
+        box-shadow: 0 2px 6px rgba(46, 213, 115, 0.1);
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .authors-table .grid-row:has(.status-normal) > div a:hover,
+      .authors-table .grid-row:has(.status-normal) > div .btn-link:hover {
+        background: rgba(46, 213, 115, 0.25);
+        border-color: rgba(46, 213, 115, 0.4);
+        box-shadow: 0 4px 12px rgba(46, 213, 115, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .authors-table .grid-row:has(.status-warning) > div a,
+      .authors-table .grid-row:has(.status-warning) > div .btn-link {
+        background: rgba(255, 199, 0, 0.15);
+        color: #ffc700;
+        border: 1px solid rgba(255, 199, 0, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 199, 0, 0.1);
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .authors-table .grid-row:has(.status-warning) > div a:hover,
+      .authors-table .grid-row:has(.status-warning) > div .btn-link:hover {
+        background: rgba(255, 199, 0, 0.25);
+        border-color: rgba(255, 199, 0, 0.4);
+        box-shadow: 0 4px 12px rgba(255, 199, 0, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .authors-table .grid-row:has(.status-danger) > div a,
+      .authors-table .grid-row:has(.status-danger) > div .btn-link {
+        background: rgba(255, 71, 87, 0.15);
+        color: #ff4757;
+        border: 1px solid rgba(255, 71, 87, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 71, 87, 0.1);
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .authors-table .grid-row:has(.status-danger) > div a:hover,
+      .authors-table .grid-row:has(.status-danger) > div .btn-link:hover {
+        background: rgba(255, 71, 87, 0.25);
+        border-color: rgba(255, 71, 87, 0.4);
+        box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+        transform: translateY(-1px);
+      }
+
+      /* Стили для статусов */
+      .status-normal {
+        background: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+      }
+
+      .status-warning {
+        background: rgba(255, 199, 0, 0.15);
+        color: #ffc700;
+      }
+
+      .status-danger {
+        background: rgba(255, 71, 87, 0.15);
+        color: #ff4757;
+      }
+
+      /* Стили для ссылок карты, 2ГИС и Авито в зависимости от статуса */
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(n+19):nth-child(-n+21) a {
+        background: rgba(46, 213, 115, 0.15);
+        color: #2ed573;
+        border: 1px solid rgba(46, 213, 115, 0.3);
+      }
+
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(n+19):nth-child(-n+21) a:hover {
+        background: rgba(46, 213, 115, 0.25);
+        color: #2ed573;
+        box-shadow: 0 4px 12px rgba(46, 213, 115, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(n+19):nth-child(-n+21) a {
+        background: rgba(255, 199, 0, 0.15);
+        color: #ffc700;
+        border: 1px solid rgba(255, 199, 0, 0.3);
+      }
+
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(n+19):nth-child(-n+21) a:hover {
+        background: rgba(255, 199, 0, 0.25);
+        color: #ffc700;
+        box-shadow: 0 4px 12px rgba(255, 199, 0, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .authors-table .grid-row:has(.status-danger) > div:nth-child(n+19):nth-child(-n+21) a {
+        background: rgba(255, 71, 87, 0.15);
+        color: #ff4757;
+        border: 1px solid rgba(255, 71, 87, 0.3);
+      }
+
+      .authors-table .grid-row:has(.status-danger) > div:nth-child(n+19):nth-child(-n+21) a:hover {
+        background: rgba(255, 71, 87, 0.25);
+        color: #ff4757;
+        box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+        transform: translateY(-1px);
+      }
+
+      /* Общие стили для ссылок */
+      .authors-table .grid-row > div:nth-child(n+19):nth-child(-n+21) a {
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      /* Стиль для кнопки отправить */
+      .authors-table .grid-row > div:nth-child(24) .btn-link {
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+
+      /* Цвета для кнопки отправить в зависимости от статуса */
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(24) .btn-link {
+        color: #2ed573;
+      }
+
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(24) .btn-link {
+        color: #ffc700;
+      }
+
+      .authors-table .grid-row:has(.status-danger) > div:nth-child(24) .btn-link {
+        color: #ff4757;
+      }
+
+      .authors-table .grid-row > div:nth-child(24) .btn-link:hover {
+        transform: translateY(-1px);
+        opacity: 0.8;
+      }
+
+      /* Скрываем кнопки для нормального и предупреждающего статусов */
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(22),
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(23),
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(24),
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(22),
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(23),
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(24) {
+        color: #8f9bba;
+      }
+
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(22)::after,
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(23)::after,
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(24)::after,
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(22)::after,
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(23)::after,
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(24)::after {
+        content: "-";
+      }
+
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(22) .btn-link,
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(23) .btn-link,
+      .authors-table .grid-row:has(.status-normal) > div:nth-child(24) .btn-link,
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(22) .btn-link,
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(23) .btn-link,
+      .authors-table .grid-row:has(.status-warning) > div:nth-child(24) .btn-link {
+        display: none;
+      }
+
+      /* Стили для кнопок в строках с аномальным статусом */
+      .authors-table .grid-row:has(.status-danger) > div:nth-child(22) .btn-link,
+      .authors-table .grid-row:has(.status-danger) > div:nth-child(23) .btn-link {
+        background: rgba(255, 71, 87, 0.15);
+        color: #ff4757;
+        border: 1px solid rgba(255, 71, 87, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 71, 87, 0.1);
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+
+      .authors-table .grid-row:has(.status-danger) > div:nth-child(22) .btn-link:hover,
+      .authors-table .grid-row:has(.status-danger) > div:nth-child(23) .btn-link:hover {
+        background: rgba(255, 71, 87, 0.25);
+        border-color: rgba(255, 71, 87, 0.4);
+        box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+        transform: translateY(-1px);
+      }
+
+      /* Стиль для кнопки отправить в строках с аномальным статусом */
+      .authors-table .grid-row:has(.status-danger) > div:nth-child(24) .btn-link {
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        color: #ff4757;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+
+      .authors-table .grid-row:has(.status-danger) > div:nth-child(24) .btn-link:hover {
+        transform: translateY(-1px);
+        opacity: 0.8;
+      }
+
+      /* Чекбоксы */
+      .custom-checkbox {
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .custom-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+
+      .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background: rgba(67, 24, 255, 0.1);
+        border: 2px solid rgba(67, 24, 255, 0.5);
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .custom-checkbox:hover .checkmark {
+        background: rgba(67, 24, 255, 0.2);
+      }
+
+      .custom-checkbox input:checked ~ .checkmark {
+        background-color: #4318ff;
+        border-color: #4318ff;
+      }
+
+      .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 6px;
+        top: 2px;
+        width: 4px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+
+      .custom-checkbox input:checked ~ .checkmark:after {
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -2691,9 +3114,9 @@
               <div>Яндекс карта</div>
               <div>2ГИС</div>
               <div>Авито</div>
+              <div>почта</div>
               <div>Письмо</div>
               <div>отправить</div>
-              <div>почта</div>
               <div class="actions-header">
                 <span>Действия</span>
               </div>
@@ -2701,7 +3124,7 @@
             <div class="grid-row">
               <div>KW-001</div>
               <div class="fio-cell">Иванов Иван Иванович</div>
-              <div>ivanov@mail.ru<br />+7 (900) 123-45-67</div>
+              <div>+7 (900) 123-45-67</div>
               <div>г. Москва, ул. Ленина, д. 1, кв. 123</div>
               <div>Некоммерческий</div>
               <div>Многоквартирный</div>
@@ -2739,13 +3162,13 @@
                 >
               </div>
               <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <button class="btn-link">Письмо</button>
               </div>
               <div>
                 <button class="btn-link">отправить</button>
-              </div>
-              <div>
-                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -2757,7 +3180,7 @@
             <div class="grid-row">
               <div>KW-002</div>
               <div class="fio-cell">Петрова Анна Сергеевна</div>
-              <div>petrova@mail.ru<br />+7 (900) 234-56-78</div>
+              <div>+7 (900) 234-56-78</div>
               <div>г. Москва, ул. Пушкина, д. 15, кв. 42</div>
               <div>Некоммерческий</div>
               <div>Многоквартирный</div>
@@ -2797,13 +3220,13 @@
                 >
               </div>
               <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <button class="btn-link">Письмо</button>
               </div>
               <div>
                 <button class="btn-link">отправить</button>
-              </div>
-              <div>
-                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -2815,7 +3238,7 @@
             <div class="grid-row">
               <div>KW-003</div>
               <div class="fio-cell">Сидоров Петр Михайлович</div>
-              <div>sidorov@mail.ru<br />+7 (900) 345-67-89</div>
+              <div>+7 (900) 345-67-89</div>
               <div>г. Москва, ул. Гагарина, д. 7</div>
               <div>Коммерческий</div>
               <div>Частный</div>
@@ -2853,13 +3276,13 @@
                 >
               </div>
               <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <button class="btn-link">Письмо</button>
               </div>
               <div>
                 <button class="btn-link">отправить</button>
-              </div>
-              <div>
-                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -2871,7 +3294,7 @@
             <div class="grid-row">
               <div>KW-004</div>
               <div class="fio-cell">Козлова Мария Александровна</div>
-              <div>kozlova@mail.ru<br />+7 (900) 456-78-90</div>
+              <div>+7 (900) 456-78-90</div>
               <div>г. Москва, ул. Тверская, д. 25, кв. 89</div>
               <div>Некоммерческий</div>
               <div>Многоквартирный</div>
@@ -2911,13 +3334,13 @@
                 >
               </div>
               <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <button class="btn-link">Письмо</button>
               </div>
               <div>
                 <button class="btn-link">отправить</button>
-              </div>
-              <div>
-                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -2930,7 +3353,7 @@
             <div class="grid-row">
               <div>KW-005</div>
               <div class="fio-cell">Смирнов Алексей Петрович</div>
-              <div>smirnov@mail.ru<br />+7 (900) 567-89-01</div>
+              <div>+7 (900) 567-89-01</div>
               <div>г. Москва, Кутузовский пр-т, д. 12, кв. 145</div>
               <div>Коммерческий</div>
               <div>Многоквартирный</div>
@@ -2968,13 +3391,13 @@
                 >
               </div>
               <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <button class="btn-link">Письмо</button>
               </div>
               <div>
                 <button class="btn-link">отправить</button>
-              </div>
-              <div>
-                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -2987,7 +3410,7 @@
             <div class="grid-row">
               <div>KW-006</div>
               <div class="fio-cell">Новиков Дмитрий Сергеевич</div>
-              <div>novikov@mail.ru<br />+7 (900) 678-90-12</div>
+              <div>+7 (900) 678-90-12</div>
               <div>г. Москва, Ленинградский пр-т, д. 78, кв. 203</div>
               <div>Некоммерческий</div>
               <div>Многоквартирный</div>
@@ -3025,13 +3448,13 @@
                 >
               </div>
               <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <button class="btn-link">Письмо</button>
               </div>
               <div>
                 <button class="btn-link">отправить</button>
-              </div>
-              <div>
-                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -3044,7 +3467,7 @@
             <div class="grid-row">
               <div>KW-007</div>
               <div class="fio-cell">Морозова Екатерина Владимировна</div>
-              <div>morozova@mail.ru<br />+7 (900) 789-01-23</div>
+              <div>+7 (900) 789-01-23</div>
               <div>г. Москва, Проспект Мира, д. 56, кв. 78</div>
               <div>Коммерческий</div>
               <div>Частный</div>
@@ -3082,13 +3505,13 @@
                 >
               </div>
               <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <button class="btn-link">Письмо</button>
               </div>
               <div>
                 <button class="btn-link">отправить</button>
-              </div>
-              <div>
-                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -3101,7 +3524,7 @@
             <div class="grid-row">
               <div>KW-008</div>
               <div class="fio-cell">Волков Андрей Игоревич</div>
-              <div>volkov@mail.ru<br />+7 (900) 890-12-34</div>
+              <div>+7 (900) 890-12-34</div>
               <div>г. Москва, ул. Арбат, д. 23, кв. 15</div>
               <div>Некоммерческий</div>
               <div>Многоквартирный</div>
@@ -3139,13 +3562,13 @@
                 >
               </div>
               <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <button class="btn-link">Письмо</button>
               </div>
               <div>
                 <button class="btn-link">отправить</button>
-              </div>
-              <div>
-                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -3158,7 +3581,7 @@
             <div class="grid-row">
               <div>KW-009</div>
               <div class="fio-cell">Соколова Ольга Дмитриевна</div>
-              <div>sokolova@mail.ru<br />+7 (900) 901-23-45</div>
+              <div>+7 (900) 901-23-45</div>
               <div>г. Москва, Комсомольский пр-т, д. 34, кв. 167</div>
               <div>Коммерческий</div>
               <div>Многоквартирный</div>
@@ -3198,13 +3621,13 @@
                 >
               </div>
               <div>
+                <button class="btn-link">почта</button>
+              </div>
+              <div>
                 <button class="btn-link">Письмо</button>
               </div>
               <div>
                 <button class="btn-link">отправить</button>
-              </div>
-              <div>
-                <button class="btn-link">почта</button>
               </div>
               <div>
                 <label class="custom-checkbox">
@@ -3248,7 +3671,7 @@
               <svg viewBox="0 0 24 24">
                 <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <span>Добавить в контроль</span>
+              <span>Сформировать отчет</span>
             </button>
           </div>
         </div>
@@ -4392,13 +4815,25 @@
               }
             </div>
             <div>
-              <button class="btn-link">Письмо</button>
+              ${
+                fraudStatus.class === 'danger'
+                ? '<button class="btn-link">почта</button>'
+                : '-'
+              }
             </div>
             <div>
-              <button class="btn-link">отправить</button>
+              ${
+                fraudStatus.class === 'danger'
+                ? '<button class="btn-link">Письмо</button>'
+                : '-'
+              }
             </div>
             <div>
-              <button class="btn-link">почта</button>
+              ${
+                fraudStatus.class === 'danger'
+                ? '<button class="btn-link">отправить</button>'
+                : '-'
+              }
             </div>
             <div>
               <label class="custom-checkbox">
@@ -4426,10 +4861,7 @@
       }
 
       function formatContacts(phone, email) {
-        const contacts = [];
-        if (phone) contacts.push(phone);
-        if (email) contacts.push(email);
-        return contacts.join("<br/>") || "Не указано";
+        return phone || "Не указано";
       }
 
       // Инициализация таблицы при загрузке страницы
