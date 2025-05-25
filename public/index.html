@@ -5075,6 +5075,183 @@
           );
         });
       }
+
+      // Вспомогательные функции
+      function determineFraudStatus(percentage) {
+        if (percentage === null || percentage === undefined) {
+          return { class: "normal", text: "Нормальный" };
+        }
+        if (percentage >= 80) {
+          return { class: "danger", text: "Аномальный" };
+        }
+        if (percentage >= 50) {
+          return { class: "warning", text: "Требует внимания" };
+        }
+        return { class: "normal", text: "Нормальный" };
+      }
+
+      function formatContacts(phone, email) {
+        let contacts = [];
+        if (phone) contacts.push(phone);
+        if (email) contacts.push(email);
+        return contacts.join("<br>") || "-";
+      }
+
+      function formatNumber(number) {
+        return number
+          ? number.toLocaleString("ru-RU", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : "-";
+      }
+
+      // Функция для загрузки данных
+      async function loadClientData() {
+        try {
+          const response = await fetch(
+            "https://api.kilowattt.ru/v1/verify/suspicious-clients"
+          );
+          if (!response.ok) {
+            throw new Error("Ошибка при получении данных");
+          }
+          const data = await response.json();
+          renderClientsTable(data);
+        } catch (error) {
+          console.error("Ошибка при загрузке данных:", error);
+          alert(
+            "Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже."
+          );
+        }
+      }
+
+      // Вызываем загрузку данных при загрузке страницы
+      document.addEventListener("DOMContentLoaded", () => {
+        loadClientData();
+      });
+
+      function renderClientsTable(clients) {
+        const tableBody = document.querySelector(".authors-table");
+        const headerRow = tableBody.querySelector(".grid-header");
+
+        tableBody.innerHTML = "";
+        tableBody.appendChild(headerRow);
+
+        clients.forEach((client) => {
+          const row = document.createElement("div");
+          row.className = "grid-row";
+
+          const fraudStatus = determineFraudStatus(client.frod_procentage);
+
+          row.innerHTML = `
+            <div>${client.id || ""}</div>
+            <div class="fio-cell">${client.name || "Не указано"}</div>
+            <div>${formatContacts(client.phone, client.email)}</div>
+            <div>${client.address || ""}</div>
+            <div>${
+              client.is_commercial ? "Коммерческий" : "Некоммерческий"
+            }</div>
+            <div>${client.home_type || ""}</div>
+            <div>${client.rooms_count || ""}</div>
+            <div>${client.people_count || ""}</div>
+            <div>${formatNumber(client.home_area)}</div>
+            <div>${formatNumber(client.summary_electricity)} кВт⋅ч</div>
+            <div>${formatNumber(client.avg_monthly_electricity)} кВт⋅ч</div>
+            <div>${formatNumber(client.max_monthly_electricity)} кВт⋅ч</div>
+            <div>${formatNumber(client.min_monthly_electricity)} кВт⋅ч</div>
+            <div>${client.season_index || "-"}</div>
+            <div>${formatNumber(client.electricity_per_sqm)} кВт⋅ч/м²</div>
+            <div>${formatNumber(client.electricity_per_person)} кВт⋅ч/чел</div>
+            <div class="status-${fraudStatus.class} status-indicator">${
+            fraudStatus.text
+          }</div>
+            <div class="probability-value">${
+              client.frod_procentage ? client.frod_procentage + "%" : "-"
+            }</div>
+            <div>
+              ${
+                client.frod_yandex
+                  ? `<a href="${client.frod_yandex}" target="_blank">Карта</a>`
+                  : "-"
+              }
+            </div>
+            <div>
+              ${
+                client.frod_2gis
+                  ? `<a href="${client.frod_2gis}" target="_blank">2ГИС</a>`
+                  : "-"
+              }
+            </div>
+            <div>
+              ${
+                client.frod_avito
+                  ? `<a href="${client.frod_avito}" target="_blank">Авито</a>`
+                  : "-"
+              }
+            </div>
+            <div>
+              ${
+                fraudStatus.class === "danger"
+                  ? '<button class="btn-link">почта</button>'
+                  : "-"
+              }
+            </div>
+            <div>
+              ${
+                fraudStatus.class === "danger"
+                  ? '<button class="btn-link">Письмо</button>'
+                  : "-"
+              }
+            </div>
+            <div>
+              ${
+                fraudStatus.class === "danger"
+                  ? '<button class="btn-link">отправить</button>'
+                  : "-"
+              }
+            </div>
+            <div>
+              <label class="custom-checkbox">
+                <input type="checkbox" class="row-checkbox" />
+                <span class="checkmark"></span>
+              </label>
+            </div>
+          `;
+
+          tableBody.appendChild(row);
+        });
+
+        // Переинициализируем обработчики событий
+        TableModule.init();
+        ControlActionModule.init();
+      }
+
+      // Обработчик нажатия на кнопку "Сформировать отчет"
+      document
+        .getElementById("generate-report-btn")
+        .addEventListener("click", async () => {
+          try {
+            const response = await fetch(
+              "https://api.kilowattt.ru/v1/verify/suspicious-clients-pdf"
+            );
+            if (!response.ok) {
+              throw new Error("Ошибка при получении PDF файла");
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "suspicious_clients.pdf";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error("Ошибка при скачивании PDF файла:", error);
+            alert(
+              "Произошла ошибка при скачивании PDF файла. Пожалуйста, попробуйте позже."
+            );
+          }
+        });
     </script>
   </body>
 </html>
