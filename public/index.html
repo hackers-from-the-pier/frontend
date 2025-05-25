@@ -4988,15 +4988,25 @@
         loadClientData(1);
       });
 
-      async function loadClientData(page) {
+      async function loadClientData(page = 1, limit = 10) {
         try {
-          const data = await getClients(page, 10);
-          renderClientsTable(data.clients);
+          const offset = (page - 1) * limit;
+          const response = await fetch(
+            `https://api.kilowattt.ru/v1/client/list?offset=${offset}&limit=${limit}`
+          );
 
-          // Инициализация пагинации
-          initPagination(data.total_pages, data.current_page);
+          if (!response.ok) {
+            throw new Error("Ошибка при получении данных");
+          }
+
+          const data = await response.json();
+          renderClientsTable(data.clients);
+          updatePagination(data.current_page, data.total_pages);
         } catch (error) {
-          console.error("Error during initialization:", error);
+          console.error("Ошибка при загрузке данных:", error);
+          alert(
+            "Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже."
+          );
         }
       }
 
@@ -5034,10 +5044,8 @@
           }`;
           pageButton.textContent = i;
 
-          pageButton.addEventListener("click", async () => {
-            const data = await getClients(i, 10);
-            renderClientsTable(data.clients);
-            initPagination(totalPages, i);
+          pageButton.addEventListener("click", () => {
+            loadClientData(i);
           });
 
           paginationNumbers.appendChild(pageButton);
@@ -5050,35 +5058,27 @@
         lastButton.disabled = currentPage === totalPages;
 
         // Добавляем обработчики для кнопок навигации
-        firstButton.onclick = async () => {
+        firstButton.onclick = () => {
           if (currentPage !== 1) {
-            const data = await getClients(1, 10);
-            renderClientsTable(data.clients);
-            initPagination(totalPages, 1);
+            loadClientData(1);
           }
         };
 
-        prevButton.onclick = async () => {
+        prevButton.onclick = () => {
           if (currentPage > 1) {
-            const data = await getClients(currentPage - 1, 10);
-            renderClientsTable(data.clients);
-            initPagination(totalPages, currentPage - 1);
+            loadClientData(currentPage - 1);
           }
         };
 
-        nextButton.onclick = async () => {
+        nextButton.onclick = () => {
           if (currentPage < totalPages) {
-            const data = await getClients(currentPage + 1, 10);
-            renderClientsTable(data.clients);
-            initPagination(totalPages, currentPage + 1);
+            loadClientData(currentPage + 1);
           }
         };
 
-        lastButton.onclick = async () => {
+        lastButton.onclick = () => {
           if (currentPage !== totalPages) {
-            const data = await getClients(totalPages, 10);
-            renderClientsTable(data.clients);
-            initPagination(totalPages, totalPages);
+            loadClientData(totalPages);
           }
         };
       }
@@ -5098,7 +5098,7 @@
         .addEventListener("click", async () => {
           try {
             const response = await fetch(
-              `${API_BASE_URL}/v1/verify/suspicious-clients-pdf`,
+              "https://api.kilowattt.ru/v1/verify/suspicious-clients-pdf",
               {
                 method: "GET",
               }
@@ -5152,27 +5152,6 @@
               maximumFractionDigits: 2,
             })
           : "-";
-      }
-
-      // Функция для загрузки данных
-      async function loadClientData(page = 1, limit = 10) {
-        try {
-          const offset = (page - 1) * limit;
-          const response = await fetch(
-            `https://api.kilowattt.ru/v1/client/list?offset=${offset}&limit=${limit}`
-          );
-          if (!response.ok) {
-            throw new Error("Ошибка при получении данных");
-          }
-          const data = await response.json();
-          renderClientsTable(data.clients);
-          updatePagination(data.current_page, data.total_pages);
-        } catch (error) {
-          console.error("Ошибка при загрузке данных:", error);
-          alert(
-            "Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже."
-          );
-        }
       }
 
       function updatePagination(currentPage, totalPages) {
